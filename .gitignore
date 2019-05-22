@@ -101,7 +101,7 @@ ENV/
 .vscode
 
 # Mkdocs
-site/
+# site/
 
 # Notes
 notes/
