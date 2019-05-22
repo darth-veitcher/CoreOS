@@ -13,6 +13,10 @@ theme:
   logo:
     icon: 'cloud'
 
+# GitHub Pages
+docs_dir: docs_src
+site_dir: docs
+
 # Customisation
 extra:
   social:
