@@ -241,6 +241,18 @@
       
       
 
+
+  <li class="md-nav__item">
+    <a href="../firewall/" title="Enable firewall" class="md-nav__link">
+      Enable firewall
+    </a>
+  </li>
+
+    
+      
+      
+      
+
   
 
 
@@ -292,10 +304,10 @@
 <p>Due to issues with getting wireguard working reverting to OpenVPN via <a href="Using https://github.com/kylemanna/docker-openvpn">kylemanna/docker-openvpn</a>.</p>
 <p>I'm going to assume a domain of ghost.algebraic.ninja</p>
 <p>First, create the data volume.
-<div class="highlight"><pre><span></span>OVPN_DATA=&quot;ovpn-data-ghost&quot;
-docker volume create --name $OVPN_DATA
+<div class="codehilite"><pre><span></span><span class="n">OVPN_DATA</span><span class="o">=</span><span class="ss">&quot;ovpn-data-ghost&quot;</span>
+<span class="n">docker</span> <span class="n">volume</span> <span class="k">create</span> <span class="c1">--name $OVPN_DATA</span>
 </pre></div></p>
-<p>Now show the details for reference with <code>docker volume inspect $OVPN_DATA</code></p>
+<p>Now show the details for reference with <code class="codehilite"><span class="n">docker</span> <span class="n">volume</span> <span class="n">inspect</span> <span class="err">$</span><span class="n">OVPN_DATA</span></code></p>
 <details><summary>example output</summary><p>[
     {
         "CreatedAt": "2019-05-22T20:00:38Z",
@@ -308,31 +320,36 @@ docker volume create --name $OVPN_DATA
     }
 ]</p>
 </details>
-<p>Next we'll initialise the <code>$OVPN_DATA</code> container that will hold the configuration files and certificates. The container will prompt for a passphrase to protect the private key used by the newly generated certificate authority.</p>
-<div class="highlight"><pre><span></span>VPN_HOST=ghost.algebraic.ninja
-docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm kylemanna/openvpn ovpn_genconfig -u udp://$VPN_HOST
-docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it kylemanna/openvpn ovpn_initpki
+<p>Next we'll initialise the <code class="codehilite"><span class="err">$</span><span class="n">OVPN_DATA</span></code> container that will hold the configuration files and certificates. The container will prompt for a passphrase to protect the private key used by the newly generated certificate authority.</p>
+<details class="info"><summary>config</summary><div class="codehilite"><pre><span></span><span class="nv">Status</span>: <span class="nv">Downloaded</span> <span class="nv">newer</span> <span class="nv">image</span> <span class="k">for</span> <span class="nv">kylemanna</span><span class="o">/</span><span class="nv">openvpn</span>:<span class="nv">latest</span>
+<span class="nv">Processing</span> <span class="nv">PUSH</span> <span class="nv">Config</span>: <span class="s1">&#39;</span><span class="s">block-outside-dns</span><span class="s1">&#39;</span>
+<span class="hll"><span class="nv">Processing</span> <span class="nv">Route</span> <span class="nv">Config</span>: <span class="s1">&#39;</span><span class="s">192.168.254.0/24</span><span class="s1">&#39;</span>
+</span><span class="nv">Processing</span> <span class="nv">PUSH</span> <span class="nv">Config</span>: <span class="s1">&#39;</span><span class="s">dhcp-option DNS 8.8.8.8</span><span class="s1">&#39;</span>
+<span class="nv">Processing</span> <span class="nv">PUSH</span> <span class="nv">Config</span>: <span class="s1">&#39;</span><span class="s">dhcp-option DNS 8.8.4.4</span><span class="s1">&#39;</span>
+<span class="nv">Processing</span> <span class="nv">PUSH</span> <span class="nv">Config</span>: <span class="s1">&#39;</span><span class="s">comp-lzo no</span><span class="s1">&#39;</span>
+<span class="nv">Successfully</span> <span class="nv">generated</span> <span class="nv">config</span>
+<span class="nv">Cleaning</span> <span class="nv">up</span> <span class="nv">before</span> <span class="k">Exit</span> ...
 </pre></div>
 
-<p>Start OpenVPN server process</p>
-<div class="highlight"><pre><span></span>docker run -v $OVPN_DATA:/etc/openvpn -d -p 1194:1194/udp --cap-add=NET_ADMIN kylemanna/openvpn
+</details>
+<p>docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it kylemanna/openvpn ovpn_initpki
+<div class="codehilite"><pre><span></span><span class="k">Start</span> <span class="n">OpenVPN</span> <span class="n">server</span> <span class="n">process</span>
 </pre></div>
-
-<p>Generate a client certificate without a passphrase</p>
-<div class="highlight"><pre><span></span>CLIENTNAME=jamesveitch
+docker run -v $OVPN_DATA:/etc/openvpn -d -p 1194:1194/udp --cap-add=NET_ADMIN kylemanna/openvpn
+<div class="codehilite"><pre><span></span><span class="n">Generate</span> <span class="n">a</span> <span class="n">client</span> <span class="n">certificate</span> <span class="k">without</span> <span class="n">a</span> <span class="n">passphrase</span>
+</pre></div>
+CLIENTNAME=jamesveitch
 docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it kylemanna/openvpn easyrsa build-client-full $CLIENTNAME nopass
+<div class="codehilite"><pre><span></span><span class="n">Retrieve</span> <span class="n">the</span> <span class="n">client</span> <span class="n">configuration</span> <span class="k">with</span> <span class="n">embedded</span> <span class="n">certificates</span>
 </pre></div>
-
-<p>Retrieve the client configuration with embedded certificates</p>
-<div class="highlight"><pre><span></span>docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm kylemanna/openvpn ovpn_getclient $CLIENTNAME &gt; $CLIENTNAME.ovpn
+docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm kylemanna/openvpn ovpn_getclient $CLIENTNAME &gt; $CLIENTNAME.ovpn
+<div class="codehilite"><pre><span></span><span class="n">Now</span> <span class="k">add</span> <span class="n">it</span> <span class="k">as</span> <span class="n">a</span> <span class="ss">`systemd`</span> <span class="n">service</span> <span class="k">on</span> <span class="n">reboot</span><span class="p">.</span> <span class="n">Download</span> <span class="n">the</span> <span class="n">docker</span><span class="o">-</span><span class="n">openvpn</span><span class="o">@</span><span class="p">.</span><span class="n">service</span> <span class="n">file</span> <span class="k">to</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">systemd</span><span class="o">/</span><span class="n">system</span><span class="p">:</span>
 </pre></div>
-
-<p>Now add it as a <code>systemd</code> service on reboot. Download the docker-openvpn@.service file to /etc/systemd/system:
-<div class="highlight"><pre><span></span>curl -L https://raw.githubusercontent.com/kylemanna/docker-openvpn/master/init/docker-openvpn%40.service | sudo tee /etc/systemd/system/docker-openvpn@.service
+curl -L <a href="https://raw.githubusercontent.com/kylemanna/docker-openvpn/master/init/docker-openvpn%40.service">https://raw.githubusercontent.com/kylemanna/docker-openvpn/master/init/docker-openvpn%40.service</a> | sudo tee /etc/systemd/system/docker-openvpn@.service
+<div class="codehilite"><pre><span></span><span class="n">Enable</span> <span class="k">and</span> <span class="k">start</span> <span class="n">the</span> <span class="n">service</span> <span class="k">with</span><span class="p">:</span>
 </pre></div>
-Enable and start the service with:
-<div class="highlight"><pre><span></span>systemctl enable --now docker-openvpn@ghost.service
-</pre></div></p>
+systemctl enable --now <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#100;&#111;&#99;&#107;&#101;&#114;&#45;&#111;&#112;&#101;&#110;&#118;&#112;&#110;&#64;&#103;&#104;&#111;&#115;&#116;&#46;&#115;&#101;&#114;&#118;&#105;&#99;&#101;">&#100;&#111;&#99;&#107;&#101;&#114;&#45;&#111;&#112;&#101;&#110;&#118;&#112;&#110;&#64;&#103;&#104;&#111;&#115;&#116;&#46;&#115;&#101;&#114;&#118;&#105;&#99;&#101;</a>
+```</p>
                 
                   
                 
@@ -353,7 +370,7 @@ Enable and start the service with:
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href=".." title="CoreOS Setup" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../firewall/" title="Enable firewall" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -362,7 +379,7 @@ Enable and start the service with:
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                CoreOS Setup
+                Enable firewall
               </span>
             </div>
           </a>
