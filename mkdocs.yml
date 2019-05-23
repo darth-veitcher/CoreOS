@@ -26,6 +26,8 @@ extra:
 # Extensions
 # https://squidfunk.github.io/mkdocs-material/extensions/pymdown/
 markdown_extensions:
+  - admonition
+  - codehilite
   - pymdownx.arithmatex
   - pymdownx.betterem:
       smart_enable: all

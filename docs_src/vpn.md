@@ -30,6 +30,19 @@ Next we'll initialise the `$OVPN_DATA` container that will hold the configuratio
 ```
 VPN_HOST=ghost.algebraic.ninja
 docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm kylemanna/openvpn ovpn_genconfig -u udp://$VPN_HOST
+```
+Make a note of the output from the config
+??? info "config"
+    ``` hl_lines="3"
+    Status: Downloaded newer image for kylemanna/openvpn:latest
+    Processing PUSH Config: 'block-outside-dns'
+    Processing Route Config: '192.168.254.0/24'
+    Processing PUSH Config: 'dhcp-option DNS 8.8.8.8'
+    Processing PUSH Config: 'dhcp-option DNS 8.8.4.4'
+    Processing PUSH Config: 'comp-lzo no'
+    Successfully generated config
+    Cleaning up before Exit ...
+    ```
 docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it kylemanna/openvpn ovpn_initpki
 ```
 
