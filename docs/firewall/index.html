@@ -1,0 +1,586 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+        <meta name="description" content="Setting up CoreOS for lab work">
+      
+      
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.2.0">
+    
+    
+      
+        <title>Enable firewall - CoreOS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/application.750b69bd.css">
+      
+      
+    
+    
+      <script src="../assets/javascripts/modernizr.74668098.js"></script>
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../assets/fonts/material-icons.css">
+    
+    
+    
+      
+    
+    
+  </head>
+  
+    <body dir="ltr">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448"
+    viewBox="0 0 416 448" id="__github">
+  <path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19-18.125
+        8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19 18.125-8.5
+        18.125 8.5 10.75 19 3.125 20.5zM320 304q0 10-3.125 20.5t-10.75
+        19-18.125 8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19
+        18.125-8.5 18.125 8.5 10.75 19 3.125 20.5zM360
+        304q0-30-17.25-51t-46.75-21q-10.25 0-48.75 5.25-17.75 2.75-39.25
+        2.75t-39.25-2.75q-38-5.25-48.75-5.25-29.5 0-46.75 21t-17.25 51q0 22 8
+        38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0
+        37.25-1.75t35-7.375 30.5-15 20.25-25.75 8-38.375zM416 260q0 51.75-15.25
+        82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5-41.75
+        1.125q-19.5 0-35.5-0.75t-36.875-3.125-38.125-7.5-34.25-12.875-30.25-20.25-21.5-28.75q-15.5-30.75-15.5-82.75
+        0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25
+        30.875q36.75-8.75 77.25-8.75 37 0 70 8 26.25-20.5
+        46.75-30.25t47.25-9.75q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34
+        99.5z" />
+</svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#enable-firewall" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href=".." title="CoreOS" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon">cloud</i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            <span class="md-header-nav__topic">
+              CoreOS
+            </span>
+            <span class="md-header-nav__topic">
+              Enable firewall
+            </span>
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+<a href="https://github.com/darth-veitcher/coreos/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    darth-veitcher/coreos
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href=".." title="CoreOS" class="md-nav__button md-logo">
+      
+        <i class="md-icon">cloud</i>
+      
+    </a>
+    CoreOS
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+<a href="https://github.com/darth-veitcher/coreos/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    darth-veitcher/coreos
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href=".." title="CoreOS Setup" class="md-nav__link">
+      CoreOS Setup
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../vpn/" title="Setting up OpenVPN Server on CoreOS" class="md-nav__link">
+      Setting up OpenVPN Server on CoreOS
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Enable firewall
+      </label>
+    
+    <a href="./" title="Enable firewall" class="md-nav__link md-nav__link--active">
+      Enable firewall
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#hardening-the-firewall" title="Hardening the firewall" class="md-nav__link">
+    Hardening the firewall
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#understand-local-network-details" title="Understand local network details" class="md-nav__link">
+    Understand local network details
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#modify-the-firewall" title="Modify the firewall" class="md-nav__link">
+    Modify the firewall
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#hardening-the-firewall" title="Hardening the firewall" class="md-nav__link">
+    Hardening the firewall
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#understand-local-network-details" title="Understand local network details" class="md-nav__link">
+    Understand local network details
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#modify-the-firewall" title="Modify the firewall" class="md-nav__link">
+    Modify the firewall
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/darth-veitcher/coreos/edit/master/docs/firewall.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <h1 id="enable-firewall">Enable firewall</h1>
+<p>After ensuring that the VPN works we're going to disable all access to ssh or any other protocol externally except for http 80 / https 443.</p>
+<p>That way we can subsequently use Traefik as a reverse proxy into the VPN.</p>
+<p>For now, let's simply block direct access to SSH.</p>
+<p>Check the status of the firewall
+<div class="codehilite"><pre><span></span>systemctl status -l iptables-restore
+</pre></div></p>
+<details><summary>output</summary><div class="codehilite"><pre><span></span><span class="n">core</span><span class="nv">@ghost</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="err">$</span><span class="w"> </span><span class="n">systemctl</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">-</span><span class="n">l</span><span class="w"> </span><span class="n">iptables</span><span class="o">-</span><span class="k">restore</span><span class="w"></span>
+<span class="err">●</span><span class="w"> </span><span class="n">iptables</span><span class="o">-</span><span class="k">restore</span><span class="p">.</span><span class="n">service</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">Restore</span><span class="w"> </span><span class="n">iptables</span><span class="w"> </span><span class="n">firewall</span><span class="w"> </span><span class="n">rules</span><span class="w"></span>
+<span class="nl">Loaded</span><span class="p">:</span><span class="w"> </span><span class="n">loaded</span><span class="w"> </span><span class="p">(</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">systemd</span><span class="o">/</span><span class="k">system</span><span class="o">/</span><span class="n">iptables</span><span class="o">-</span><span class="k">restore</span><span class="p">.</span><span class="n">service</span><span class="p">;</span><span class="w"> </span><span class="n">disabled</span><span class="p">;</span><span class="w"> </span><span class="n">vendor</span><span class="w"> </span><span class="nl">preset</span><span class="p">:</span><span class="w"> </span><span class="n">disabled</span><span class="p">)</span><span class="w"></span>
+<span class="nl">Active</span><span class="p">:</span><span class="w"> </span><span class="n">inactive</span><span class="w"> </span><span class="p">(</span><span class="n">dead</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+
+</details>
+<p>So it's not enabled, let's enable it.
+<div class="codehilite"><pre><span></span>sudo systemctl <span class="nb">enable</span> iptables-restore
+</pre></div></p>
+<p>We'll now set some rules in <code class="codehilite"><span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">iptables</span><span class="o">/</span><span class="n">rules</span><span class="o">-</span><span class="n">save</span></code></p>
+<details class="info"><summary>/var/lib/iptables/rules-save</summary><div class="codehilite"><pre><span></span><span class="o">*</span><span class="n">filter</span>
+<span class="p">:</span><span class="k">INPUT</span> <span class="k">DROP</span> <span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span>
+<span class="p">:</span><span class="k">FORWARD</span> <span class="k">DROP</span> <span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span>
+<span class="p">:</span><span class="k">OUTPUT</span> <span class="n">ACCEPT</span> <span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="o">#</span> <span class="n">Accept</span> <span class="k">all</span> <span class="n">loopback</span> <span class="p">(</span><span class="k">local</span><span class="p">)</span> <span class="n">traffic</span><span class="p">:</span>
+<span class="o">-</span><span class="n">A</span> <span class="k">INPUT</span> <span class="o">-</span><span class="n">i</span> <span class="n">lo</span> <span class="o">-</span><span class="n">j</span> <span class="n">ACCEPT</span>
+
+<span class="o">#</span> <span class="n">Keep</span> <span class="k">existing</span> <span class="n">connections</span> <span class="p">(</span><span class="k">like</span> <span class="n">our</span> <span class="n">SSH</span> <span class="k">session</span><span class="p">)</span> <span class="n">alive</span><span class="p">:</span>
+<span class="o">-</span><span class="n">A</span> <span class="k">INPUT</span> <span class="o">-</span><span class="n">m</span> <span class="n">conntrack</span> <span class="c1">--ctstate RELATED,ESTABLISHED -j ACCEPT</span>
+
+<span class="o">#</span> <span class="n">Accept</span> <span class="k">all</span> <span class="n">TCP</span><span class="o">/</span><span class="n">IP</span> <span class="n">traffic</span> <span class="k">to</span> <span class="n">HTTP</span><span class="p">,</span> <span class="k">and</span> <span class="n">HTTPS</span> <span class="n">ports</span>
+<span class="o">-</span><span class="n">A</span> <span class="k">INPUT</span> <span class="o">-</span><span class="n">p</span> <span class="n">tcp</span> <span class="o">-</span><span class="n">m</span> <span class="n">tcp</span> <span class="c1">--dport 80 -j ACCEPT</span>
+<span class="o">-</span><span class="n">A</span> <span class="k">INPUT</span> <span class="o">-</span><span class="n">p</span> <span class="n">tcp</span> <span class="o">-</span><span class="n">m</span> <span class="n">tcp</span> <span class="c1">--dport 443 -j ACCEPT</span>
+
+<span class="o">#</span> <span class="n">Accept</span> <span class="k">all</span> <span class="n">UDP</span> <span class="k">to</span> <span class="n">our</span> <span class="n">VPN</span>
+<span class="o">-</span><span class="n">A</span> <span class="k">INPUT</span> <span class="o">-</span><span class="n">p</span> <span class="n">udp</span> <span class="c1">--dport 1194 -j ACCEPT</span>
+
+<span class="o">#</span> <span class="p">(</span><span class="k">Temporary</span><span class="p">)</span>
+<span class="o">#</span> <span class="n">Accept</span> <span class="k">all</span> <span class="n">TCP</span><span class="o">/</span><span class="n">IP</span> <span class="k">to</span> <span class="n">SSH</span>
+<span class="o">-</span><span class="n">A</span> <span class="k">INPUT</span> <span class="o">-</span><span class="n">p</span> <span class="n">tcp</span> <span class="o">-</span><span class="n">m</span> <span class="n">tcp</span> <span class="c1">--dport 22 -j ACCEPT</span>
+
+<span class="o">#</span> <span class="n">Accept</span> <span class="n">pings</span><span class="p">:</span>
+<span class="o">-</span><span class="n">A</span> <span class="k">INPUT</span> <span class="o">-</span><span class="n">p</span> <span class="n">icmp</span> <span class="o">-</span><span class="n">m</span> <span class="n">icmp</span> <span class="c1">--icmp-type 0 -j ACCEPT</span>
+<span class="o">-</span><span class="n">A</span> <span class="k">INPUT</span> <span class="o">-</span><span class="n">p</span> <span class="n">icmp</span> <span class="o">-</span><span class="n">m</span> <span class="n">icmp</span> <span class="c1">--icmp-type 3 -j ACCEPT</span>
+<span class="o">-</span><span class="n">A</span> <span class="k">INPUT</span> <span class="o">-</span><span class="n">p</span> <span class="n">icmp</span> <span class="o">-</span><span class="n">m</span> <span class="n">icmp</span> <span class="c1">--icmp-type 11 -j ACCEPT</span>
+<span class="k">COMMIT</span>
+</pre></div>
+
+</details>
+<p>This config:</p>
+<ul>
+<li>By default:<ul>
+<li>Drops all incoming connection attempts</li>
+<li>Prevents any forwarding attempts</li>
+<li>Allows outbound traffic</li>
+</ul>
+</li>
+<li>Overrides:<ul>
+<li>Allows ICMP pings and echo responses</li>
+<li>Allows inbound to http (80) and https (443)</li>
+<li>Allows inbound udp to our VPN</li>
+</ul>
+</li>
+<li>For the moment:<ul>
+<li>Allows inbound to port 22 for ssh</li>
+</ul>
+</li>
+</ul>
+<p>Set the right permissions</p>
+<div class="codehilite"><pre><span></span>sudo chmod <span class="m">0644</span> /var/lib/iptables/rules-save
+</pre></div>
+
+<p>Now we should be ready to try the service again:
+<div class="codehilite"><pre><span></span>sudo systemctl start iptables-restore
+</pre></div></p>
+<p>If successful, <code class="codehilite"><span class="n">systemctl</span></code> will exit silently. We can check the status of the firewall in two ways. First, by using <code class="codehilite"><span class="n">systemctl</span></code> status:
+<div class="codehilite"><pre><span></span>sudo systemctl status -l iptables-restore
+</pre></div>
+And secondly by listing the current iptables rules themselves:
+<div class="codehilite"><pre><span></span>sudo iptables -v -L
+</pre></div></p>
+<details><summary>current rules example output</summary><div class="codehilite"><pre><span></span><span class="k">Chain</span> <span class="k">INPUT</span> <span class="p">(</span><span class="n">policy</span> <span class="k">DROP</span> <span class="mi">0</span> <span class="n">packets</span><span class="p">,</span> <span class="mi">0</span> <span class="n">bytes</span><span class="p">)</span>
+<span class="n">pkts</span> <span class="n">bytes</span> <span class="n">target</span>     <span class="n">prot</span> <span class="n">opt</span> <span class="k">in</span>     <span class="k">out</span>     <span class="k">source</span>               <span class="n">destination</span>         
+    <span class="mi">4</span>   <span class="mi">200</span> <span class="n">ACCEPT</span>     <span class="k">all</span>  <span class="c1">--  lo     any     anywhere             anywhere            </span>
+<span class="mi">69</span> <span class="mi">30530</span> <span class="n">ACCEPT</span>     <span class="k">all</span>  <span class="c1">--  any    any     anywhere             anywhere             ctstate RELATED,ESTABLISHED</span>
+    <span class="mi">0</span>     <span class="mi">0</span> <span class="n">ACCEPT</span>     <span class="n">tcp</span>  <span class="c1">--  any    any     anywhere             anywhere             tcp dpt:http</span>
+    <span class="mi">0</span>     <span class="mi">0</span> <span class="n">ACCEPT</span>     <span class="n">tcp</span>  <span class="c1">--  any    any     anywhere             anywhere             tcp dpt:https</span>
+    <span class="mi">0</span>     <span class="mi">0</span> <span class="n">ACCEPT</span>     <span class="n">udp</span>  <span class="c1">--  any    any     anywhere             anywhere             udp dpt:openvpn</span>
+    <span class="mi">1</span>    <span class="mi">64</span> <span class="n">ACCEPT</span>     <span class="n">tcp</span>  <span class="c1">--  any    any     anywhere             anywhere             tcp dpt:ssh</span>
+    <span class="mi">0</span>     <span class="mi">0</span> <span class="n">ACCEPT</span>     <span class="n">icmp</span> <span class="c1">--  any    any     anywhere             anywhere             icmp echo-reply</span>
+    <span class="mi">0</span>     <span class="mi">0</span> <span class="n">ACCEPT</span>     <span class="n">icmp</span> <span class="c1">--  any    any     anywhere             anywhere             icmp destination-unreachable</span>
+    <span class="mi">0</span>     <span class="mi">0</span> <span class="n">ACCEPT</span>     <span class="n">icmp</span> <span class="c1">--  any    any     anywhere             anywhere             icmp time-exceeded</span>
+</pre></div>
+
+</details>
+<p>All clients on the VPN will be allocated to the <code class="codehilite"><span class="mi">192</span><span class="p">.</span><span class="mi">168</span><span class="p">.</span><span class="mi">255</span><span class="p">.</span><span class="mi">0</span><span class="o">/</span><span class="mi">24</span></code> subnet.</p>
+<h2 id="hardening-the-firewall">Hardening the firewall</h2>
+<p>With the above setup and confirmed to work we'll now remove direct external access to SSH. We will though allow from the VPN subnet and localhost. This requires editing the <code class="codehilite"><span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">iptables</span><span class="o">/</span><span class="n">rules</span><span class="o">-</span><span class="n">save</span></code> file again.</p>
+<h3 id="understand-local-network-details">Understand local network details</h3>
+<p>Before modifying the firewall we should understand the current network topology. If we want to limit access to <code class="codehilite"><span class="k">host</span></code> resources (i.e. CoreOS) then we need to appropriately filter network traffic from our docker containers. Some further details available from this StackOverflow question: <a href="https://stackoverflow.com/questions/24319662/from-inside-of-a-docker-container-how-do-i-connect-to-the-localhost-of-the-mach#24326540">From inside of a Docker container, how do I connect to the localhost of the machine?</a></p>
+<details class="info" open="open"><summary>host network</summary><div class="codehilite"><pre><span></span><span class="nv">core</span>@<span class="nv">ns3007580</span> <span class="o">~</span> $ <span class="nv">sudo</span> <span class="nv">ip</span> <span class="nv">addr</span> <span class="k">show</span> <span class="nv">docker0</span>
+<span class="mi">3</span>: <span class="nv">docker0</span>: <span class="o">&lt;</span><span class="nv">BROADCAST</span>,<span class="nv">MULTICAST</span>,<span class="nv">UP</span>,<span class="nv">LOWER_UP</span><span class="o">&gt;</span> <span class="nv">mtu</span> <span class="mi">1500</span> <span class="nv">qdisc</span> <span class="nv">noqueue</span> <span class="nv">state</span> <span class="nv">UP</span> <span class="nv">group</span> <span class="nv">default</span> 
+    <span class="nv">link</span><span class="o">/</span><span class="nv">ether</span> <span class="mi">02</span>:<span class="mi">42</span>:<span class="mi">90</span>:<span class="mi">8</span><span class="nv">f</span>:<span class="nv">d9</span>:<span class="mi">1</span><span class="nv">f</span> <span class="nv">brd</span> <span class="nv">ff</span>:<span class="nv">ff</span>:<span class="nv">ff</span>:<span class="nv">ff</span>:<span class="nv">ff</span>:<span class="nv">ff</span>
+    <span class="nv">inet</span> <span class="mi">172</span>.<span class="mi">17</span>.<span class="mi">0</span>.<span class="mi">1</span><span class="o">/</span><span class="mi">16</span> <span class="nv">brd</span> <span class="mi">172</span>.<span class="mi">17</span>.<span class="mi">255</span>.<span class="mi">255</span> <span class="nv">scope</span> <span class="nv">global</span> <span class="nv">docker0</span>
+        <span class="nv">valid_lft</span> <span class="nv">forever</span> <span class="nv">preferred_lft</span> <span class="nv">forever</span>
+    <span class="nv">inet6</span> <span class="nv">fe80</span>::<span class="mi">42</span>:<span class="mi">90</span><span class="nv">ff</span>:<span class="nv">fe8f</span>:<span class="nv">d91f</span><span class="o">/</span><span class="mi">64</span> <span class="nv">scope</span> <span class="nv">link</span> 
+        <span class="nv">valid_lft</span> <span class="nv">forever</span> <span class="nv">preferred_lft</span> <span class="nv">forever</span>
+</pre></div>
+
+</details>
+<p>As you'll see from the above the subnet for docker on the host is <code class="codehilite"><span class="mi">172</span><span class="p">.</span><span class="mi">17</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">1</span><span class="o">/</span><span class="mi">16</span></code> and our host will therefore be <code class="codehilite"><span class="mi">172</span><span class="p">.</span><span class="mi">17</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">1</span></code>. Once connected to the VPN with a client you should be able to connect with a <code class="codehilite"><span class="n">ssh</span> <span class="n">core</span><span class="mf">@172.17.0.1</span></code> command. <strong>Check this first before proceeding</strong>.</p>
+<h3 id="modify-the-firewall">Modify the firewall</h3>
+<p><code class="codehilite"><span class="n">sudo</span> <span class="n">vi</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">iptables</span><span class="o">/</span><span class="n">rules</span><span class="o">-</span><span class="n">save</span></code></p>
+<p>The below diff shows the changes to make
+<div class="codehilite"><pre><span></span><span class="gd">- # (Temporary)</span>
+<span class="gd">- # Accept all TCP/IP to SSH</span>
+<span class="gd">- -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT</span>
+<span class="gi">+ # Accept all TCP/IP to SSH from VPN subnet</span>
+<span class="gi">+ -A INPUT -p tcp -m tcp --dport 22 --src 172.17.0.1/16 -j ACCEPT</span>
+</pre></div></p>
+<details class="warning" open="open"><summary>Warning</summary><p>The next step could permanently lock you out of the system if the previous steps have not been performed correctly...</p>
+<p>Fair warning!</p>
+</details>
+<p>Now reboot and apply the changes made. You shouldn't be able to ssh directly into the box now from an external IP address.
+<div class="codehilite"><pre><span></span>sudo shutdown -r now
+</pre></div></p>
+<p>SSH from a connected VPN client should work though.
+<div class="codehilite"><pre><span></span>ssh core@172.17.0.1
+</pre></div></p>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../vpn/" title="Setting up OpenVPN Server on CoreOS" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Setting up OpenVPN Server on CoreOS
+              </span>
+            </div>
+          </a>
+        
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        powered by
+        <a href="https://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+  <div class="md-footer-social">
+    <link rel="stylesheet" href="../assets/fonts/font-awesome.css">
+    
+      <a href="https://github.com/darth-veitcher" class="md-footer-social__link fa fa-github"></a>
+    
+  </div>
+
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/application.39abc4af.js"></script>
+      
+      <script>app.initialize({version:"1.0.4",url:{base:".."}})</script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+      
+    
+  </body>
+</html>
