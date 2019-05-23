@@ -303,6 +303,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#configure-docker" title="Configure Docker" class="md-nav__link">
+    Configure Docker
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -357,6 +364,13 @@
           <li class="md-nav__item">
   <a href="#modify-the-firewall" title="Modify the firewall" class="md-nav__link">
     Modify the firewall
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configure-docker" title="Configure Docker" class="md-nav__link">
+    Configure Docker
   </a>
   
 </li>
@@ -513,6 +527,51 @@ And secondly by listing the current iptables rules themselves:
 <p>SSH from a connected VPN client should work though.
 <div class="codehilite"><pre><span></span>ssh core@172.17.0.1
 </pre></div></p>
+<h3 id="configure-docker">Configure Docker</h3>
+<p>For a number of reasons we'll enable access to our docker daemon from the VPN subnet.</p>
+<p>As discussed in <a href="https://success.docker.com/article/how-do-i-enable-the-remote-api-for-dockerd">the docs</a> the best way to do this is to use a systemd drop-in file.</p>
+<div class="codehilite"><pre><span></span>sudo mkdir -p /etc/systemd/system/docker.service.d
+sudo vi /etc/systemd/system/docker.service.d/override.conf
+</pre></div>
+
+<details><summary>/etc/systemd/system/docker.service.d/override.conf</summary><div class="codehilite"><pre><span></span><span class="k">[Service]</span>
+<span class="na">ExecStart</span><span class="o">=</span>
+<span class="na">ExecStart</span><span class="o">=</span><span class="s">/usr/bin/dockerd -H fd:// -H tcp://172.17.0.1:2376</span>
+</pre></div>
+
+</details>
+<p>Now reload and restart.</p>
+<div class="codehilite"><pre><span></span>sudo systemctl daemon-reload
+sudo systemctl restart docker.service
+</pre></div>
+
+<p>We'll need to modify the firewall again to allow this connection.</p>
+<div class="codehilite"><pre><span></span>sudo vi /var/lib/iptables/rules-save
+</pre></div>
+
+<div class="codehilite"><pre><span></span><span class="c1"># Accept all TCP/IP to SSH from VPN subnet</span>
+-A INPUT -p tcp -m tcp --dport <span class="m">22</span> --src <span class="m">172</span>.17.0.1/16 -j ACCEPT
+<span class="hll">-A INPUT -p tcp -m tcp --dport <span class="m">2376</span> --src <span class="m">172</span>.17.0.1/16 -j ACCEPT
+</span></pre></div>
+
+<p>Reboot to apply this and now, once connected to the VPN, you should be able to perform the following to set your terminal session to use the remote CoreOS docker daemon.</p>
+<div class="codehilite"><pre><span></span><span class="nb">export</span> <span class="nv">DOCKER_HOST</span><span class="o">=</span>tcp://172.17.0.1:2376
+docker info
+docker ps
+</pre></div>
+
+<details open="open"><summary>docker info</summary><div class="codehilite"><pre><span></span><span class="n">Kernel</span> <span class="k">Version</span><span class="p">:</span> <span class="mi">4</span><span class="p">.</span><span class="mi">19</span><span class="p">.</span><span class="mi">43</span><span class="o">-</span><span class="n">coreos</span>
+<span class="hll"><span class="n">Operating</span> <span class="k">System</span><span class="p">:</span> <span class="n">Container</span> <span class="n">Linux</span> <span class="k">by</span> <span class="n">CoreOS</span> <span class="mi">2079</span><span class="p">.</span><span class="mi">4</span><span class="p">.</span><span class="mi">0</span> <span class="p">(</span><span class="n">Rhyolite</span><span class="p">)</span>
+</span><span class="n">OSType</span><span class="p">:</span> <span class="n">linux</span>
+<span class="n">Architecture</span><span class="p">:</span> <span class="n">x86_64</span>
+</pre></div>
+
+</details>
+<details><summary>docker ps</summary><div class="codehilite"><pre><span></span><span class="n">CONTAINER</span> <span class="n">ID</span>        <span class="n">IMAGE</span>                      <span class="n">COMMAND</span>             <span class="n">CREATED</span>             <span class="n">STATUS</span>              <span class="n">PORTS</span>                    <span class="k">NAMES</span>
+<span class="mi">6</span><span class="n">b81cbe64109</span>        <span class="n">kylemanna</span><span class="o">/</span><span class="n">openvpn</span><span class="p">:</span><span class="n">latest</span>   <span class="ss">&quot;ovpn_run&quot;</span>          <span class="mi">40</span> <span class="n">minutes</span> <span class="n">ago</span>      <span class="n">Up</span> <span class="mi">40</span> <span class="n">minutes</span>       <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="p">:</span><span class="mi">1194</span><span class="o">-&gt;</span><span class="mi">1194</span><span class="o">/</span><span class="n">udp</span>   <span class="n">ovpn</span><span class="o">-</span><span class="n">ghost</span>
+</pre></div>
+
+</details>
                 
                   
                 
