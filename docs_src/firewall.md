@@ -151,3 +151,61 @@ SSH from a connected VPN client should work though.
 ```bash
 ssh core@172.17.0.1
 ```
+
+### Configure Docker
+For a number of reasons we'll enable access to our docker daemon from the VPN subnet.
+
+As discussed in [the docs](https://success.docker.com/article/how-do-i-enable-the-remote-api-for-dockerd) the best way to do this is to use a systemd drop-in file.
+
+```bash
+sudo mkdir -p /etc/systemd/system/docker.service.d
+sudo vi /etc/systemd/system/docker.service.d/override.conf
+```
+
+??? "/etc/systemd/system/docker.service.d/override.conf"
+    ```
+    [Service]
+    ExecStart=
+    ExecStart=/usr/bin/dockerd -H fd:// -H tcp://172.17.0.1:2376
+    ```
+
+Now reload and restart.
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart docker.service
+```
+
+We'll need to modify the firewall again to allow this connection.
+
+```bash
+sudo vi /var/lib/iptables/rules-save
+```
+
+```bash hl_lines="3"
+# Accept all TCP/IP to SSH from VPN subnet
+-A INPUT -p tcp -m tcp --dport 22 --src 172.17.0.1/16 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 2376 --src 172.17.0.1/16 -j ACCEPT
+```
+
+Reboot to apply this and now, once connected to the VPN, you should be able to perform the following to set your terminal session to use the remote CoreOS docker daemon.
+
+```bash
+export DOCKER_HOST=tcp://172.17.0.1:2376
+docker info
+docker ps
+```
+
+???+ "docker info"
+    ```hl_lines="2"
+    Kernel Version: 4.19.43-coreos
+    Operating System: Container Linux by CoreOS 2079.4.0 (Rhyolite)
+    OSType: linux
+    Architecture: x86_64
+    ```
+
+??? "docker ps"
+    ```
+    CONTAINER ID        IMAGE                      COMMAND             CREATED             STATUS              PORTS                    NAMES
+    6b81cbe64109        kylemanna/openvpn:latest   "ovpn_run"          40 minutes ago      Up 40 minutes       0.0.0.0:1194->1194/udp   ovpn-ghost
+    ```
