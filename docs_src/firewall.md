@@ -6,9 +6,10 @@ That way we can subsequently use Traefik as a reverse proxy into the VPN.
 For now, let's simply block direct access to SSH.
 
 Check the status of the firewall
-```
+```bash
 systemctl status -l iptables-restore
 ```
+
 ??? "output"
     ```
     core@ghost ~ $ systemctl status -l iptables-restore
@@ -18,8 +19,7 @@ systemctl status -l iptables-restore
     ```
 
 So it's not enabled, let's enable it.
-
-```
+```bash
 sudo systemctl enable iptables-restore
 ```
 
@@ -71,21 +71,21 @@ This config:
 
 Set the right permissions
 
-```
+```bash
 sudo chmod 0644 /var/lib/iptables/rules-save
 ```
 
 Now we should be ready to try the service again:
-```
+```bash
 sudo systemctl start iptables-restore
 ```
 
 If successful, `systemctl` will exit silently. We can check the status of the firewall in two ways. First, by using `systemctl` status:
-```
+```bash
 sudo systemctl status -l iptables-restore
 ```
 And secondly by listing the current iptables rules themselves:
-```
+```bash
 sudo iptables -v -L
 ```
 
@@ -143,11 +143,11 @@ The below diff shows the changes to make
     Fair warning!
 
 Now reboot and apply the changes made. You shouldn't be able to ssh directly into the box now from an external IP address.
-```
+```bash
 sudo shutdown -r now
 ```
 
 SSH from a connected VPN client should work though.
-```
+```bash
 ssh core@172.17.0.1
 ```

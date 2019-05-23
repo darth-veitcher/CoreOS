@@ -23,6 +23,12 @@ extra:
     - type: 'github'
       link: 'https://github.com/darth-veitcher'
 
+# Nav
+nav:
+    - index.md
+    - vpn.md
+    - firewall.md
+
 # Extensions
 # https://squidfunk.github.io/mkdocs-material/extensions/pymdown/
 markdown_extensions:
