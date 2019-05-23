@@ -241,6 +241,18 @@
       
       
 
+
+  <li class="md-nav__item">
+    <a href="../vpn/" title="Setting up OpenVPN Server on CoreOS" class="md-nav__link">
+      Setting up OpenVPN Server on CoreOS
+    </a>
+  </li>
+
+    
+      
+      
+      
+
   
 
 
@@ -304,18 +316,6 @@
   
 </nav>
     
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="../vpn/" title="Setting up OpenVPN Server on CoreOS" class="md-nav__link">
-      Setting up OpenVPN Server on CoreOS
-    </a>
   </li>
 
     
@@ -389,6 +389,9 @@
 <p>After ensuring that the VPN works we're going to disable all access to ssh or any other protocol externally except for http 80 / https 443.</p>
 <p>That way we can subsequently use Traefik as a reverse proxy into the VPN.</p>
 <p>For now, let's simply block direct access to SSH.</p>
+<p>Check the status of the firewall
+<div class="codehilite"><pre><span></span>systemctl status -l iptables-restore
+</pre></div></p>
 <details><summary>output</summary><div class="codehilite"><pre><span></span><span class="n">core</span><span class="nv">@ghost</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="err">$</span><span class="w"> </span><span class="n">systemctl</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">-</span><span class="n">l</span><span class="w"> </span><span class="n">iptables</span><span class="o">-</span><span class="k">restore</span><span class="w"></span>
 <span class="err">●</span><span class="w"> </span><span class="n">iptables</span><span class="o">-</span><span class="k">restore</span><span class="p">.</span><span class="n">service</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">Restore</span><span class="w"> </span><span class="n">iptables</span><span class="w"> </span><span class="n">firewall</span><span class="w"> </span><span class="n">rules</span><span class="w"></span>
 <span class="nl">Loaded</span><span class="p">:</span><span class="w"> </span><span class="n">loaded</span><span class="w"> </span><span class="p">(</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">systemd</span><span class="o">/</span><span class="k">system</span><span class="o">/</span><span class="n">iptables</span><span class="o">-</span><span class="k">restore</span><span class="p">.</span><span class="n">service</span><span class="p">;</span><span class="w"> </span><span class="n">disabled</span><span class="p">;</span><span class="w"> </span><span class="n">vendor</span><span class="w"> </span><span class="nl">preset</span><span class="p">:</span><span class="w"> </span><span class="n">disabled</span><span class="p">)</span><span class="w"></span>
@@ -396,10 +399,9 @@
 </pre></div>
 
 </details>
-<p>So it's not enabled, let's enable it.</p>
-<div class="codehilite"><pre><span></span><span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">enable</span> <span class="n">iptables</span><span class="o">-</span><span class="n">restore</span>
-</pre></div>
-
+<p>So it's not enabled, let's enable it.
+<div class="codehilite"><pre><span></span>sudo systemctl <span class="nb">enable</span> iptables-restore
+</pre></div></p>
 <p>We'll now set some rules in <code class="codehilite"><span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">iptables</span><span class="o">/</span><span class="n">rules</span><span class="o">-</span><span class="n">save</span></code></p>
 <details class="info"><summary>/var/lib/iptables/rules-save</summary><div class="codehilite"><pre><span></span><span class="o">*</span><span class="n">filter</span>
 <span class="p">:</span><span class="k">INPUT</span> <span class="k">DROP</span> <span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span>
@@ -451,17 +453,17 @@
 </li>
 </ul>
 <p>Set the right permissions</p>
-<div class="codehilite"><pre><span></span><span class="n">sudo</span> <span class="n">chmod</span> <span class="mi">0644</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">iptables</span><span class="o">/</span><span class="n">rules</span><span class="o">-</span><span class="n">save</span>
+<div class="codehilite"><pre><span></span>sudo chmod <span class="m">0644</span> /var/lib/iptables/rules-save
 </pre></div>
 
 <p>Now we should be ready to try the service again:
-<div class="codehilite"><pre><span></span><span class="n">sudo</span> <span class="n">systemctl</span> <span class="k">start</span> <span class="n">iptables</span><span class="o">-</span><span class="n">restore</span>
+<div class="codehilite"><pre><span></span>sudo systemctl start iptables-restore
 </pre></div></p>
 <p>If successful, <code class="codehilite"><span class="n">systemctl</span></code> will exit silently. We can check the status of the firewall in two ways. First, by using <code class="codehilite"><span class="n">systemctl</span></code> status:
-<div class="codehilite"><pre><span></span><span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">status</span> <span class="o">-</span><span class="n">l</span> <span class="n">iptables</span><span class="o">-</span><span class="n">restore</span>
+<div class="codehilite"><pre><span></span>sudo systemctl status -l iptables-restore
 </pre></div>
 And secondly by listing the current iptables rules themselves:
-<div class="codehilite"><pre><span></span><span class="n">sudo</span> <span class="n">iptables</span> <span class="o">-</span><span class="n">v</span> <span class="o">-</span><span class="n">L</span>
+<div class="codehilite"><pre><span></span>sudo iptables -v -L
 </pre></div></p>
 <details><summary>current rules example output</summary><div class="codehilite"><pre><span></span><span class="k">Chain</span> <span class="k">INPUT</span> <span class="p">(</span><span class="n">policy</span> <span class="k">DROP</span> <span class="mi">0</span> <span class="n">packets</span><span class="p">,</span> <span class="mi">0</span> <span class="n">bytes</span><span class="p">)</span>
 <span class="n">pkts</span> <span class="n">bytes</span> <span class="n">target</span>     <span class="n">prot</span> <span class="n">opt</span> <span class="k">in</span>     <span class="k">out</span>     <span class="k">source</span>               <span class="n">destination</span>         
@@ -506,10 +508,10 @@ And secondly by listing the current iptables rules themselves:
 <p>Fair warning!</p>
 </details>
 <p>Now reboot and apply the changes made. You shouldn't be able to ssh directly into the box now from an external IP address.
-<div class="codehilite"><pre><span></span><span class="n">sudo</span> <span class="n">shutdown</span> <span class="o">-</span><span class="n">r</span> <span class="n">now</span>
+<div class="codehilite"><pre><span></span>sudo shutdown -r now
 </pre></div></p>
 <p>SSH from a connected VPN client should work though.
-<div class="codehilite"><pre><span></span><span class="n">ssh</span> <span class="n">core</span><span class="mf">@172.17.0.1</span>
+<div class="codehilite"><pre><span></span>ssh core@172.17.0.1
 </pre></div></p>
                 
                   
@@ -531,7 +533,7 @@ And secondly by listing the current iptables rules themselves:
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href=".." title="CoreOS Setup" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../vpn/" title="Setting up OpenVPN Server on CoreOS" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -540,25 +542,11 @@ And secondly by listing the current iptables rules themselves:
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                CoreOS Setup
-              </span>
-            </div>
-          </a>
-        
-        
-          <a href="../vpn/" title="Setting up OpenVPN Server on CoreOS" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
-            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
-              <span class="md-flex__ellipsis">
-                <span class="md-footer-nav__direction">
-                  Next
-                </span>
                 Setting up OpenVPN Server on CoreOS
               </span>
             </div>
-            <div class="md-flex__cell md-flex__cell--shrink">
-              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
-            </div>
           </a>
+        
         
       </nav>
     </div>
