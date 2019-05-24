@@ -259,4 +259,29 @@ The logs will indicate some additional activity now as Traefik identifies the ne
     level=debug msg="Adding certificate for domain(s) ghost.algebraic.ninja"
     ```
 
-Navigating to `ghost.algebraic.ninja` should now present itself with a green tick / trusted certificate signed by the `Lets Encrypt Authority`.
+Navigating to `ghost.algebraic.ninja/traefik` should now present itself with a green tick / trusted certificate signed by the `Lets Encrypt Authority`. As a result we can now remove the `-p 8080:8080` from our command as **it is no longer required to expose the ports directly to the outside world**.
+
+As a result our final traefik command looks like this.
+
+```bash
+docker run -d --name traefik \
+    -p 80:80 -p 443:443 \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /etc/traefik:/etc/traefik \
+    --label "traefik.frontend.rule=Host:ghost.algebraic.ninja; PathPrefixStrip: /traefik" \
+    --label "traefik.port=8080" \
+    traefik --api --docker --docker.watch \
+    --docker.endpoint="unix:///var/run/docker.sock" \
+    --docker.exposedbydefault \
+    --loglevel=debug \
+    --defaultentrypoints="https" \
+    --entryPoints="Name:http Address::80 Redirect.EntryPoint:https" \
+    --entryPoints="Name:https Address::443 TLS" \
+    --acme \
+    --acme.storage="/etc/traefik/acme.json" \
+    --acme.email="admin@ghost.algebraic.ninja" \
+    --acme.domains="ghost.algebraic.ninja" \
+    --acme.entrypoint="https" \
+    --acme.tlschallenge \
+    --acme.onhostrule
+```
