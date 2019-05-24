@@ -62,7 +62,7 @@ An example would therefore look like this:
 
 ```
 - "traefik.frontend.rule=Host:ghost.algebraic.ninja"
-- "traefik.port=1194"
+- "traefik.port=80"
 ```
 
 This tells Traefik that any incoming connections to a host of `ghost.algebraic.ninja` should be routed to port `80` on our container. Let's test this with a basic container.
