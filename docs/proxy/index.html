@@ -1,0 +1,698 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+        <meta name="description" content="Setting up CoreOS for lab work">
+      
+      
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.2.0">
+    
+    
+      
+        <title>Using Traefik as a reverse proxy - CoreOS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/application.750b69bd.css">
+      
+      
+    
+    
+      <script src="../assets/javascripts/modernizr.74668098.js"></script>
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../assets/fonts/material-icons.css">
+    
+    
+    
+      
+    
+    
+  </head>
+  
+    <body dir="ltr">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448"
+    viewBox="0 0 416 448" id="__github">
+  <path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19-18.125
+        8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19 18.125-8.5
+        18.125 8.5 10.75 19 3.125 20.5zM320 304q0 10-3.125 20.5t-10.75
+        19-18.125 8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19
+        18.125-8.5 18.125 8.5 10.75 19 3.125 20.5zM360
+        304q0-30-17.25-51t-46.75-21q-10.25 0-48.75 5.25-17.75 2.75-39.25
+        2.75t-39.25-2.75q-38-5.25-48.75-5.25-29.5 0-46.75 21t-17.25 51q0 22 8
+        38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0
+        37.25-1.75t35-7.375 30.5-15 20.25-25.75 8-38.375zM416 260q0 51.75-15.25
+        82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5-41.75
+        1.125q-19.5 0-35.5-0.75t-36.875-3.125-38.125-7.5-34.25-12.875-30.25-20.25-21.5-28.75q-15.5-30.75-15.5-82.75
+        0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25
+        30.875q36.75-8.75 77.25-8.75 37 0 70 8 26.25-20.5
+        46.75-30.25t47.25-9.75q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34
+        99.5z" />
+</svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#using-traefik-as-a-reverse-proxy" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href=".." title="CoreOS" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon">cloud</i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            <span class="md-header-nav__topic">
+              CoreOS
+            </span>
+            <span class="md-header-nav__topic">
+              Using Traefik as a reverse proxy
+            </span>
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+<a href="https://github.com/darth-veitcher/coreos/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    darth-veitcher/coreos
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href=".." title="CoreOS" class="md-nav__button md-logo">
+      
+        <i class="md-icon">cloud</i>
+      
+    </a>
+    CoreOS
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+<a href="https://github.com/darth-veitcher/coreos/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    darth-veitcher/coreos
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href=".." title="CoreOS Setup" class="md-nav__link">
+      CoreOS Setup
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../vpn/" title="Setting up OpenVPN Server on CoreOS" class="md-nav__link">
+      Setting up OpenVPN Server on CoreOS
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../firewall/" title="Enable firewall" class="md-nav__link">
+      Enable firewall
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Using Traefik as a reverse proxy
+      </label>
+    
+    <a href="./" title="Using Traefik as a reverse proxy" class="md-nav__link md-nav__link--active">
+      Using Traefik as a reverse proxy
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#adding-https" title="Adding HTTPS" class="md-nav__link">
+    Adding HTTPS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-letsencrypt" title="Adding LetsEncrypt" class="md-nav__link">
+    Adding LetsEncrypt
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#adding-https" title="Adding HTTPS" class="md-nav__link">
+    Adding HTTPS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-letsencrypt" title="Adding LetsEncrypt" class="md-nav__link">
+    Adding LetsEncrypt
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/darth-veitcher/coreos/edit/master/docs/proxy.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <h1 id="using-traefik-as-a-reverse-proxy">Using Traefik as a reverse proxy</h1>
+<p>Traefik is awesome... It's documented much better elsewhere but, from my perspective it covers off the following requirements:</p>
+<ul>
+<li>Reverse proxy capabilities (i.e. what you might have used nginx for previously). Routing public facing <code class="codehilite"><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">app</span><span class="p">.</span><span class="n">mydomain</span><span class="p">.</span><span class="n">com</span></code> to the equivalent of <code class="codehilite"><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">8000</span></code></li>
+<li>Automatic SSL certificate generation via LetsEncrypt</li>
+<li>Ability to "watch" the docker daemon and, when container changes are detected, it can automatically add their routes and generate new certificates as required.</li>
+</ul>
+<p>We're going to sit it on ports 80/443, generate a LetsEncrypt trusted certificate and automatically forward all traffic to https.</p>
+<p>ssh into your CoreOS host <code class="codehilite"><span class="n">ssh</span> <span class="n">core</span><span class="mf">@172.17.0.1</span></code> and lets spin it up to illustrate some concepts quickly.</p>
+<div class="codehilite"><pre><span></span><span class="c1"># pull the latest image</span>
+docker pull traefik
+
+<span class="c1"># now run it with default settings and expose the dashboard</span>
+<span class="c1"># (temporary only, not recommended in production)</span>
+docker run -d --name traefik -p <span class="m">80</span>:80 -p <span class="m">443</span>:443 -p <span class="m">8080</span>:8080 traefik --api
+</pre></div>
+
+<p>You should now be able to navigate to <a href="http://ghost.algebraic.ninja:8080">http://ghost.algebraic.ninja:8080</a> and see a nice looking (if blank) dashboard. There's nothing in it which is rubbish as we know there's already a container running for our OpenVPN server.</p>
+<p>We'll kill this instance and change the commandline to mount the docker unix socket from the host into the traefik container to give it access to and context of other containers.</p>
+<div class="codehilite"><pre><span></span><span class="c1"># kill the current instance</span>
+docker rm -f traefik
+
+<span class="c1"># now append a volume mount</span>
+docker run -d --name traefik <span class="se">\</span>
+    -p <span class="m">80</span>:80 -p <span class="m">443</span>:443 -p <span class="m">8080</span>:8080 <span class="se">\</span>
+    -v /var/run/docker.sock:/var/run/docker.sock <span class="se">\</span>
+    traefik --api --docker --docker.watch <span class="se">\</span>
+    --docker.endpoint<span class="o">=</span><span class="s2">&quot;unix:///var/run/docker.sock&quot;</span> <span class="se">\</span>
+    --docker.exposedbydefault <span class="se">\</span>
+    --loglevel<span class="o">=</span>debug
+</pre></div>
+
+<p>But this still isn't enough?? Looking through the logs you'll spot the following:</p>
+<div class="codehilite"><pre><span></span><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Provider connection established with docker 18.06.3-ce (API 1.38)&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;originLabelsmap[org.opencontainers.image.vendor:Containous org.opencontainers.image.version:v1.7.11 org.opencontainers.image.description:A modern reverse-proxy org.opencontainers.image.documentation:https://docs.traefik.io org.opencontainers.image.title:Traefik org.opencontainers.image.url:https://traefik.io]&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;allLabelsmap[:map[]]&quot;</span>
+<span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Filtering container with empty frontend rule /traefik &quot;</span>
+</span><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;originLabelsmap[maintainer:Kyle Manna &lt;kyle@kylemanna.com&gt;]&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;allLabelsmap[:map[]]&quot;</span>
+<span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Filtering container with empty frontend rule /ovpn-ghost &quot;</span>
+</span><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Configuration received from provider docker: {}&quot;</span>
+<span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Server configuration reloaded on :8080&quot;</span>
+<span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Server configuration reloaded on :80&quot;</span>
+</pre></div>
+
+<p>What this is telling us is that traefik is detecting the containers but is ignoring them for the moment because we haven't told it how to present them externally using a defined <a href="https://docs.traefik.io/basics/#frontends">frontend</a>.</p>
+<p>We need to do this via custom attributes which can be added to those containers at runtime with the following syntax (basic example):</p>
+<ul>
+<li><code class="codehilite"><span class="n">traefik</span><span class="p">.</span><span class="n">frontend</span><span class="p">.</span><span class="k">rule</span></code>: tell traefik how to know to route incoming traffick to this container.</li>
+<li><code class="codehilite"><span class="n">traefik</span><span class="p">.</span><span class="n">port</span></code>: if the rule above is matched, which port on the container to send the matched traffick to.</li>
+</ul>
+<p>An example would therefore look like this:</p>
+<div class="codehilite"><pre><span></span><span class="o">-</span> <span class="ss">&quot;traefik.frontend.rule=Host:ghost.algebraic.ninja&quot;</span>
+<span class="o">-</span> <span class="ss">&quot;traefik.port=1194&quot;</span>
+</pre></div>
+
+<p>This tells Traefik that any incoming connections to a host of <code class="codehilite"><span class="n">ghost</span><span class="p">.</span><span class="n">algebraic</span><span class="p">.</span><span class="n">ninja</span></code> should be routed to port <code class="codehilite"><span class="mi">80</span></code> on our container. Let's test this with a basic container.</p>
+<div class="codehilite"><pre><span></span><span class="n">docker</span> <span class="n">run</span> <span class="o">-</span><span class="n">d</span> <span class="c1">--name whoami --label traefik.frontend.rule=Host:ghost.algebraic.ninja containous/whoami</span>
+</pre></div>
+
+<p>Now, with the <code class="codehilite"><span class="n">traefik</span></code> container your logs should show the following...</p>
+<details class="info" open="open"><summary>whoami</summary><div class="codehilite"><pre><span></span><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;allLabelsmap[:map[]]&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Filtering container with empty frontend rule /ovpn-ghost &quot;</span>
+<span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;originLabelsmap[traefik.frontend.rule:Host:ghost.algebraic.ninja]&quot;</span>
+</span><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;allLabelsmap[:map[traefik.frontend.rule:Host:ghost.algebraic.ninja]]&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Backend backend-whoami: no load-balancer defined, fallback to &#39;wrr&#39; method&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Configuration received from provider docker: {\&quot;backends\&quot;:{\&quot;backend-whoami\&quot;:{\&quot;servers\&quot;:{\&quot;server-whoami-6a97af237a8c4b33d3b3252f98e273c3\&quot;:{\&quot;url\&quot;:\&quot;http://172.17.0.3:80\&quot;,\&quot;weight\&quot;:1}},\&quot;loadBalancer\&quot;:{\&quot;method\&quot;:\&quot;wrr\&quot;}}},\&quot;frontends\&quot;:{\&quot;frontend-Host-ghost-algebraic-ninja-0\&quot;:{\&quot;entryPoints\&quot;:[\&quot;http\&quot;],\&quot;backend\&quot;:\&quot;backend-whoami\&quot;,\&quot;routes\&quot;:{\&quot;route-frontend-Host-ghost-algebraic-ninja-0\&quot;:{\&quot;rule\&quot;:\&quot;Host:ghost.algebraic.ninja\&quot;}},\&quot;passHostHeader\&quot;:true,\&quot;priority\&quot;:0,\&quot;basicAuth\&quot;:null}}}&quot;</span>
+<span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Wiring frontend frontend-Host-ghost-algebraic-ninja-0 to entryPoint http&quot;</span>
+</span><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Creating backend backend-whoami&quot;</span>
+<span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Adding TLSClientHeaders middleware for frontend frontend-Host-ghost-algebraic-ninja-0&quot;</span>
+</span><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Creating load-balancer wrr&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Creating server server-whoami-6a97af237a8c4b33d3b3252f98e273c3 at http://172.17.0.3:80 with weight 1&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Creating route route-frontend-Host-ghost-algebraic-ninja-0 Host:ghost.algebraic.ninja&quot;</span>
+</pre></div>
+
+</details>
+<p>Navigating to <code class="codehilite"><span class="n">ghost</span><span class="p">.</span><span class="n">algebraic</span><span class="p">.</span><span class="n">ninja</span></code> should now show you a load of useful stats about your request and how it's been perceived by the webserver. In addition, navigating to the traefik dashboard that we still have exposed (for now) at <code class="codehilite"><span class="n">ghost</span><span class="p">.</span><span class="n">algebraic</span><span class="p">.</span><span class="n">ninja</span><span class="p">:</span><span class="mi">8080</span></code> should show the container.</p>
+<h2 id="adding-https">Adding HTTPS</h2>
+<p>For the moment we've purely focused on proxying requests through to the containers. Let's now leverage Traefik's ability to enforce https across all traffick.</p>
+<div class="codehilite"><pre><span></span><span class="c1"># kill the old container</span>
+docker rm -f traefik
+
+<span class="c1"># start a new one</span>
+docker run -d --name traefik <span class="se">\</span>
+    -p <span class="m">80</span>:80 -p <span class="m">443</span>:443 -p <span class="m">8080</span>:8080 <span class="se">\</span>
+    -v /var/run/docker.sock:/var/run/docker.sock <span class="se">\</span>
+    traefik --api --docker --docker.watch <span class="se">\</span>
+    --docker.endpoint<span class="o">=</span><span class="s2">&quot;unix:///var/run/docker.sock&quot;</span> <span class="se">\</span>
+    --docker.exposedbydefault <span class="se">\</span>
+    --loglevel<span class="o">=</span>debug <span class="se">\</span>
+    --defaultentrypoints<span class="o">=</span><span class="s2">&quot;https&quot;</span> <span class="se">\</span>
+    --entryPoints<span class="o">=</span><span class="s2">&quot;Name:http Address::80 Redirect.EntryPoint:https&quot;</span> <span class="se">\</span>
+    --entryPoints<span class="o">=</span><span class="s2">&quot;Name:https Address::443 TLS&quot;</span>
+</pre></div>
+
+<p>The logs will now show the following:</p>
+<div class="codehilite"><pre><span></span>...
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Creating entry point redirect http -&gt; https&quot;</span>
+...
+</pre></div>
+
+<p>Navigating to <code class="codehilite"><span class="n">ghost</span><span class="p">.</span><span class="n">algebraic</span><span class="p">.</span><span class="n">ninja</span></code> in your browser will display a warning message as it redirects you to a https page. The exact warning will vary by browser but it will be essentially saying it can't verify the authenticity of the webpage. This is because Traefik is serving it up using the default self-signed certificate.</p>
+<details open="open"><summary>logs</summary><div class="codehilite"><pre><span></span><span class="nv">level</span><span class="o">=</span><span class="nv">debug</span> <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">Serving default cert for request: \</span><span class="s2">&quot;</span><span class="nv">ghost</span>.<span class="nv">algebraic</span>.<span class="nv">ninja</span>\<span class="s2">&quot;&quot;</span>
+<span class="nv">level</span><span class="o">=</span><span class="nv">debug</span> <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">http: TLS handshake error from 82.24.111.21:53644: EOF</span><span class="s2">&quot;</span>
+</pre></div>
+
+</details>
+<p>You can choose to ignore the warning and proceed. Interestingly though you'll see that attempting to access the Traefik dashboard via <code class="codehilite"><span class="n">ghost</span><span class="p">.</span><span class="n">algebraic</span><span class="p">.</span><span class="n">ninja</span><span class="p">:</span><span class="mi">8080</span></code> does not get automatically upgraded to SSL. Add a couple of labels to the command to tell traefik to use the <code class="codehilite"><span class="o">/</span><span class="n">traefik</span></code> address like a virtual host directory to itself.</p>
+<div class="codehilite"><pre><span></span><span class="c1"># kill the old container</span>
+docker rm -f traefik
+
+<span class="c1"># start a new one</span>
+docker run -d --name traefik <span class="se">\</span>
+    -p <span class="m">80</span>:80 -p <span class="m">443</span>:443 -p <span class="m">8080</span>:8080 <span class="se">\</span>
+    -v /var/run/docker.sock:/var/run/docker.sock <span class="se">\</span>
+    --label <span class="s2">&quot;traefik.frontend.rule=Host:ghost.algebraic.ninja; PathPrefixStrip: /traefik&quot;</span> <span class="se">\</span>
+    --label <span class="s2">&quot;traefik.port=8080&quot;</span> <span class="se">\</span>
+    traefik --api --docker --docker.watch <span class="se">\</span>
+    --docker.endpoint<span class="o">=</span><span class="s2">&quot;unix:///var/run/docker.sock&quot;</span> <span class="se">\</span>
+    --docker.exposedbydefault <span class="se">\</span>
+    --loglevel<span class="o">=</span>debug <span class="se">\</span>
+    --defaultentrypoints<span class="o">=</span><span class="s2">&quot;https&quot;</span> <span class="se">\</span>
+    --entryPoints<span class="o">=</span><span class="s2">&quot;Name:http Address::80 Redirect.EntryPoint:https&quot;</span> <span class="se">\</span>
+    --entryPoints<span class="o">=</span><span class="s2">&quot;Name:https Address::443 TLS&quot;</span>
+</pre></div>
+
+<p>Navigating to <code class="codehilite"><span class="n">ghost</span><span class="p">.</span><span class="n">algebraic</span><span class="p">.</span><span class="n">ninja</span><span class="o">/</span><span class="n">traefik</span></code> will now take you to the dahboard and automatically upgrade the connection to SSL.</p>
+<h2 id="adding-letsencrypt">Adding LetsEncrypt</h2>
+<p>So far we've used the self-signed certificate from Traefik to provide SSL capabilities. Whilst this is probably fine for testing and local development with an externally recognisable domain name we should be able to use the free service from LetsEncrypt to provide a fully-trusted 3<sup>rd</sup> party certificate for our web services. More information on this can be found in the <a href="https://docs.traefik.io/configuration/acme/">ACME</a> section of the Traefik docs.</p>
+<p>For the moment we will use a basic TLS verification where the authority just verifies that we have an accessible webserver they can handshake with (challenge/response) at the given address by dns. <strong>This does not allow wildcard certs though (which we will look at later).</strong></p>
+<div class="codehilite"><pre><span></span><span class="c1"># kill the old container</span>
+docker rm -f traefik
+
+<span class="c1"># create a storage file for holding the certificates</span>
+sudo mkdir -p /etc/traefik
+sudo chown -R core:core /etc/traefik
+touch /etc/traefik/acme.json
+sudo chmod <span class="m">600</span> /etc/traefik/*
+
+<span class="c1"># start a new one</span>
+docker run -d --name traefik <span class="se">\</span>
+    -p <span class="m">80</span>:80 -p <span class="m">443</span>:443 -p <span class="m">8080</span>:8080 <span class="se">\</span>
+    -v /var/run/docker.sock:/var/run/docker.sock <span class="se">\</span>
+    -v /etc/traefik:/etc/traefik <span class="se">\</span>
+    --label <span class="s2">&quot;traefik.frontend.rule=Host:ghost.algebraic.ninja; PathPrefixStrip: /traefik&quot;</span> <span class="se">\</span>
+    --label <span class="s2">&quot;traefik.port=8080&quot;</span> <span class="se">\</span>
+    traefik --api --docker --docker.watch <span class="se">\</span>
+    --docker.endpoint<span class="o">=</span><span class="s2">&quot;unix:///var/run/docker.sock&quot;</span> <span class="se">\</span>
+    --docker.exposedbydefault <span class="se">\</span>
+    --loglevel<span class="o">=</span>debug <span class="se">\</span>
+    --defaultentrypoints<span class="o">=</span><span class="s2">&quot;https&quot;</span> <span class="se">\</span>
+    --entryPoints<span class="o">=</span><span class="s2">&quot;Name:http Address::80 Redirect.EntryPoint:https&quot;</span> <span class="se">\</span>
+    --entryPoints<span class="o">=</span><span class="s2">&quot;Name:https Address::443 TLS&quot;</span> <span class="se">\</span>
+    --acme <span class="se">\</span>
+    --acme.storage<span class="o">=</span><span class="s2">&quot;/etc/traefik/acme.json&quot;</span> <span class="se">\</span>
+    --acme.email<span class="o">=</span><span class="s2">&quot;admin@ghost.algebraic.ninja&quot;</span> <span class="se">\</span>
+    --acme.domains<span class="o">=</span><span class="s2">&quot;ghost.algebraic.ninja&quot;</span> <span class="se">\</span>
+    --acme.entrypoint<span class="o">=</span><span class="s2">&quot;https&quot;</span> <span class="se">\</span>
+    --acme.tlschallenge <span class="se">\</span>
+    --acme.onhostrule
+</pre></div>
+
+<p>The logs will indicate some additional activity now as Traefik identifies the new configuration and then obtains trusted certificates from LetsEncrypt.</p>
+<details class="info"><summary>ACME logs</summary><div class="codehilite"><pre><span></span><span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Setting Acme Certificate store from Entrypoint: https&quot;</span>
+</span><span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Preparing server traefik &amp;{Address::8080 TLS:&lt;nil&gt; Redirect:&lt;nil&gt; Auth:&lt;nil&gt; WhitelistSourceRange:[] WhiteList:&lt;nil&gt; Compress:false ProxyProtocol:&lt;nil&gt; ForwardedHeaders:0xc00046d080} with readTimeout=0s writeTimeout=0s idleTimeout=3m0s&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Creating entry point redirect http -&gt; https&quot;</span>
+<span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Preparing server http &amp;{Address::80 TLS:&lt;nil&gt; Redirect:0xc000481600 Auth:&lt;nil&gt; WhitelistSourceRange:[] WhiteList:&lt;nil&gt; Compress:false ProxyProtocol:&lt;nil&gt; ForwardedHeaders:0xc00046ce20} with readTimeout=0s writeTimeout=0s idleTimeout=3m0s&quot;</span>
+<span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Preparing server https &amp;{Address::443 TLS:0xc000466fc0 Redirect:&lt;nil&gt; Auth:&lt;nil&gt; WhitelistSourceRange:[] WhiteList:&lt;nil&gt; Compress:false ProxyProtocol:&lt;nil&gt; ForwardedHeaders:0xc00046cee0} with readTimeout=0s writeTimeout=0s idleTimeout=3m0s&quot;</span>
+<span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Starting server on :8080&quot;</span>
+<span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Starting server on :80&quot;</span>
+<span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Starting provider configuration.ProviderAggregator {}&quot;</span>
+<span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Starting server on :443&quot;</span>
+<span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Starting provider *docker.Provider {\&quot;Watch\&quot;:true,\&quot;Filename\&quot;:\&quot;\&quot;,\&quot;Constraints\&quot;:null,\&quot;Trace\&quot;:false,\&quot;TemplateVersion\&quot;:2,\&quot;DebugLogGeneratedTemplate\&quot;:false,\&quot;Endpoint\&quot;:\&quot;unix:///var/run/docker.sock\&quot;,\&quot;Domain\&quot;:\&quot;\&quot;,\&quot;TLS\&quot;:null,\&quot;ExposedByDefault\&quot;:true,\&quot;UseBindPortIP\&quot;:false,\&quot;SwarmMode\&quot;:false,\&quot;Network\&quot;:\&quot;\&quot;,\&quot;SwarmModeRefreshSeconds\&quot;:15}&quot;</span>
+<span class="hll"><span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Starting provider *acme.Provider {\&quot;Email\&quot;:\&quot;admin@ghost.algebraic.ninja\&quot;,\&quot;ACMELogging\&quot;:false,\&quot;CAServer\&quot;:\&quot;https://acme-v02.api.letsencrypt.org/directory\&quot;,\&quot;Storage\&quot;:\&quot;/etc/traefik/acme.json\&quot;,\&quot;EntryPoint\&quot;:\&quot;https\&quot;,\&quot;KeyType\&quot;:\&quot;\&quot;,\&quot;OnHostRule\&quot;:true,\&quot;OnDemand\&quot;:false,\&quot;DNSChallenge\&quot;:null,\&quot;HTTPChallenge\&quot;:null,\&quot;TLSChallenge\&quot;:{},\&quot;Domains\&quot;:[{\&quot;Main\&quot;:\&quot;ghost.algebraic.ninja\&quot;,\&quot;SANs\&quot;:null}],\&quot;Store\&quot;:{}}&quot;</span>
+</span><span class="hll"><span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Testing certificate renew...&quot;</span>
+</span><span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Looking for provided certificate(s) to validate [\&quot;ghost.algebraic.ninja\&quot;]...&quot;</span>
+</span><span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Domains [\&quot;ghost.algebraic.ninja\&quot;] need ACME certificates generation for domains \&quot;ghost.algebraic.ninja\&quot;.&quot;</span>
+</span><span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Loading ACME certificates [ghost.algebraic.ninja]...&quot;</span>
+</span><span class="hll"><span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;The key type is empty. Use default key type 4096.&quot;</span>
+</span><span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Configuration received from provider ACME: {}&quot;</span>
+</span><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Provider connection established with docker 18.06.3-ce (API 1.38)&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;originLabelsmap[org.opencontainers.image.description:A modern reverse-proxy org.opencontainers.image.documentation:https://docs.traefik.io org.opencontainers.image.title:Traefik org.opencontainers.image.url:https://traefik.io org.opencontainers.image.vendor:Containous org.opencontainers.image.version:v1.7.11 traefik.frontend.rule:Host:ghost.algebraic.ninja; PathPrefixStrip: /traefik traefik.port:8080]&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;allLabelsmap[:map[traefik.frontend.rule:Host:ghost.algebraic.ninja; PathPrefixStrip: /traefik traefik.port:8080]]&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;originLabelsmap[traefik.frontend.rule:Host:ghost.algebraic.ninja]&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;allLabelsmap[:map[traefik.frontend.rule:Host:ghost.algebraic.ninja]]&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;originLabelsmap[maintainer:Kyle Manna &lt;kyle@kylemanna.com&gt;]&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;allLabelsmap[:map[]]&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Filtering container with empty frontend rule /ovpn-ghost &quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;originLabelsmap[org.opencontainers.image.documentation:https://docs.traefik.io org.opencontainers.image.title:Traefik org.opencontainers.image.url:https://traefik.io org.opencontainers.image.vendor:Containous org.opencontainers.image.version:v1.7.11 traefik.frontend.rule:Host:ghost.algebraic.ninja; PathPrefixStrip: /traefik traefik.port:8080 org.opencontainers.image.description:A modern reverse-proxy]&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;allLabelsmap[:map[traefik.frontend.rule:Host:ghost.algebraic.ninja; PathPrefixStrip: /traefik traefik.port:8080]]&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;originLabelsmap[traefik.frontend.rule:Host:ghost.algebraic.ninja]&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;allLabelsmap[:map[traefik.frontend.rule:Host:ghost.algebraic.ninja]]&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Backend backend-traefik: no load-balancer defined, fallback to &#39;wrr&#39; method&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Backend backend-whoami: no load-balancer defined, fallback to &#39;wrr&#39; method&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Configuration received from provider docker: {\&quot;backends\&quot;:{\&quot;backend-traefik\&quot;:{\&quot;servers\&quot;:{\&quot;server-traefik-1604bc8129985bbfcb9fcdde28e4d449\&quot;:{\&quot;url\&quot;:\&quot;http://172.17.0.4:8080\&quot;,\&quot;weight\&quot;:1}},\&quot;loadBalancer\&quot;:{\&quot;method\&quot;:\&quot;wrr\&quot;}},\&quot;backend-whoami\&quot;:{\&quot;servers\&quot;:{\&quot;server-whoami-6a97af237a8c4b33d3b3252f98e273c3\&quot;:{\&quot;url\&quot;:\&quot;http://172.17.0.3:80\&quot;,\&quot;weight\&quot;:1}},\&quot;loadBalancer\&quot;:{\&quot;method\&quot;:\&quot;wrr\&quot;}}},\&quot;frontends\&quot;:{\&quot;frontend-Host-ghost-algebraic-ninja-1\&quot;:{\&quot;entryPoints\&quot;:[\&quot;https\&quot;],\&quot;backend\&quot;:\&quot;backend-whoami\&quot;,\&quot;routes\&quot;:{\&quot;route-frontend-Host-ghost-algebraic-ninja-1\&quot;:{\&quot;rule\&quot;:\&quot;Host:ghost.algebraic.ninja\&quot;}},\&quot;passHostHeader\&quot;:true,\&quot;priority\&quot;:0,\&quot;basicAuth\&quot;:null},\&quot;frontend-Host-ghost-algebraic-ninja-PathPrefixStrip-traefik-0\&quot;:{\&quot;entryPoints\&quot;:[\&quot;https\&quot;],\&quot;backend\&quot;:\&quot;backend-traefik\&quot;,\&quot;routes\&quot;:{\&quot;route-frontend-Host-ghost-algebraic-ninja-PathPrefixStrip-traefik-0\&quot;:{\&quot;rule\&quot;:\&quot;Host:ghost.algebraic.ninja; PathPrefixStrip: /traefik\&quot;}},\&quot;passHostHeader\&quot;:true,\&quot;priority\&quot;:0,\&quot;basicAuth\&quot;:null}}}&quot;</span>
+<span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Server configuration reloaded on :80&quot;</span>
+<span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Server configuration reloaded on :443&quot;</span>
+<span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Server configuration reloaded on :8080&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Wiring frontend frontend-Host-ghost-algebraic-ninja-1 to entryPoint https&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Creating backend backend-whoami&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Adding TLSClientHeaders middleware for frontend frontend-Host-ghost-algebraic-ninja-1&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Creating load-balancer wrr&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Creating server server-whoami-6a97af237a8c4b33d3b3252f98e273c3 at http://172.17.0.3:80 with weight 1&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Creating route route-frontend-Host-ghost-algebraic-ninja-1 Host:ghost.algebraic.ninja&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Wiring frontend frontend-Host-ghost-algebraic-ninja-PathPrefixStrip-traefik-0 to entryPoint https&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Creating backend backend-traefik&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Adding TLSClientHeaders middleware for frontend frontend-Host-ghost-algebraic-ninja-PathPrefixStrip-traefik-0&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Creating load-balancer wrr&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Creating server server-traefik-1604bc8129985bbfcb9fcdde28e4d449 at http://172.17.0.4:8080 with weight 1&quot;</span>
+<span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Creating route route-frontend-Host-ghost-algebraic-ninja-PathPrefixStrip-traefik-0 Host:ghost.algebraic.ninja; PathPrefixStrip: /traefik&quot;</span>
+<span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Server configuration reloaded on :443&quot;</span>
+<span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Server configuration reloaded on :8080&quot;</span>
+<span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Server configuration reloaded on :80&quot;</span>
+<span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Try to challenge certificate for domain [ghost.algebraic.ninja] founded in Host rule&quot;</span>
+</span><span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Try to challenge certificate for domain [ghost.algebraic.ninja] founded in Host rule&quot;</span>
+</span><span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Looking for provided certificate(s) to validate [\&quot;ghost.algebraic.ninja\&quot;]...&quot;</span>
+</span><span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;No ACME certificate generation required for domains [\&quot;ghost.algebraic.ninja\&quot;].&quot;</span>
+</span><span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Looking for provided certificate(s) to validate [\&quot;ghost.algebraic.ninja\&quot;]...&quot;</span>
+</span><span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;No ACME certificate generation required for domains [\&quot;ghost.algebraic.ninja\&quot;].&quot;</span>
+</span><span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Building ACME client...&quot;</span>
+</span><span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;https://acme-v02.api.letsencrypt.org/directory&quot;</span>
+</span><span class="hll"><span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span>Register...
+</span><span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Using TLS Challenge provider.&quot;</span>
+</span><span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;TLS Challenge Present temp certificate for ghost.algebraic.ninja&quot;</span>
+</span><span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;TLS Challenge CleanUp temp certificate for ghost.algebraic.ninja&quot;</span>
+</span><span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Certificates obtained for domains [ghost.algebraic.ninja]&quot;</span>
+</span><span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Configuration received from provider ACME: {}&quot;</span>
+</span><span class="hll"><span class="nv">level</span><span class="o">=</span>debug <span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;Adding certificate for domain(s) ghost.algebraic.ninja&quot;</span>
+</span></pre></div>
+
+</details>
+<p>Navigating to <code class="codehilite"><span class="n">ghost</span><span class="p">.</span><span class="n">algebraic</span><span class="p">.</span><span class="n">ninja</span><span class="o">/</span><span class="n">traefik</span></code> should now present itself with a green tick / trusted certificate signed by the <code class="codehilite"><span class="n">Lets</span> <span class="n">Encrypt</span> <span class="n">Authority</span></code>. As a result we can now remove the <code class="codehilite"><span class="o">-</span><span class="n">p</span> <span class="mi">8080</span><span class="p">:</span><span class="mi">8080</span></code> from our command as <strong>it is no longer required to expose the ports directly to the outside world</strong>.</p>
+<p>As a result our final traefik command looks like this.</p>
+<div class="codehilite"><pre><span></span>docker run -d --name traefik <span class="se">\</span>
+    -p <span class="m">80</span>:80 -p <span class="m">443</span>:443 <span class="se">\</span>
+    -v /var/run/docker.sock:/var/run/docker.sock <span class="se">\</span>
+    -v /etc/traefik:/etc/traefik <span class="se">\</span>
+    --label <span class="s2">&quot;traefik.frontend.rule=Host:ghost.algebraic.ninja; PathPrefixStrip: /traefik&quot;</span> <span class="se">\</span>
+    --label <span class="s2">&quot;traefik.port=8080&quot;</span> <span class="se">\</span>
+    traefik --api --docker --docker.watch <span class="se">\</span>
+    --docker.endpoint<span class="o">=</span><span class="s2">&quot;unix:///var/run/docker.sock&quot;</span> <span class="se">\</span>
+    --docker.exposedbydefault <span class="se">\</span>
+    --loglevel<span class="o">=</span>debug <span class="se">\</span>
+    --defaultentrypoints<span class="o">=</span><span class="s2">&quot;https&quot;</span> <span class="se">\</span>
+    --entryPoints<span class="o">=</span><span class="s2">&quot;Name:http Address::80 Redirect.EntryPoint:https&quot;</span> <span class="se">\</span>
+    --entryPoints<span class="o">=</span><span class="s2">&quot;Name:https Address::443 TLS&quot;</span> <span class="se">\</span>
+    --acme <span class="se">\</span>
+    --acme.storage<span class="o">=</span><span class="s2">&quot;/etc/traefik/acme.json&quot;</span> <span class="se">\</span>
+    --acme.email<span class="o">=</span><span class="s2">&quot;admin@ghost.algebraic.ninja&quot;</span> <span class="se">\</span>
+    --acme.domains<span class="o">=</span><span class="s2">&quot;ghost.algebraic.ninja&quot;</span> <span class="se">\</span>
+    --acme.entrypoint<span class="o">=</span><span class="s2">&quot;https&quot;</span> <span class="se">\</span>
+    --acme.tlschallenge <span class="se">\</span>
+    --acme.onhostrule
+</pre></div>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../firewall/" title="Enable firewall" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Enable firewall
+              </span>
+            </div>
+          </a>
+        
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        powered by
+        <a href="https://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+  <div class="md-footer-social">
+    <link rel="stylesheet" href="../assets/fonts/font-awesome.css">
+    
+      <a href="https://github.com/darth-veitcher" class="md-footer-social__link fa fa-github"></a>
+    
+  </div>
+
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/application.39abc4af.js"></script>
+      
+      <script>app.initialize({version:"1.0.4",url:{base:".."}})</script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+      
+    
+  </body>
+</html>
