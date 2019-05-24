@@ -424,7 +424,7 @@ docker run -d --name traefik <span class="se">\</span>
 </ul>
 <p>An example would therefore look like this:</p>
 <div class="codehilite"><pre><span></span><span class="o">-</span> <span class="ss">&quot;traefik.frontend.rule=Host:ghost.algebraic.ninja&quot;</span>
-<span class="o">-</span> <span class="ss">&quot;traefik.port=1194&quot;</span>
+<span class="o">-</span> <span class="ss">&quot;traefik.port=80&quot;</span>
 </pre></div>
 
 <p>This tells Traefik that any incoming connections to a host of <code class="codehilite"><span class="n">ghost</span><span class="p">.</span><span class="n">algebraic</span><span class="p">.</span><span class="n">ninja</span></code> should be routed to port <code class="codehilite"><span class="mi">80</span></code> on our container. Let's test this with a basic container.</p>
