@@ -28,6 +28,7 @@ nav:
     - index.md
     - vpn.md
     - firewall.md
+    - proxy.md
 
 # Extensions
 # https://squidfunk.github.io/mkdocs-material/extensions/pymdown/
