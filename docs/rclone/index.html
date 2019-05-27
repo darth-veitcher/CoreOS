@@ -38,7 +38,7 @@
     
     
       
-        <title>Setting up OpenVPN Server on CoreOS - CoreOS</title>
+        <title>Setting up rclone for backups and mounts - CoreOS</title>
       
     
     
@@ -96,7 +96,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="#setting-up-openvpn-server-on-coreos" tabindex="1" class="md-skip">
+      <a href="#setting-up-rclone-for-backups-and-mounts" tabindex="1" class="md-skip">
         Skip to content
       </a>
     
@@ -121,7 +121,7 @@
               CoreOS
             </span>
             <span class="md-header-nav__topic">
-              Setting up OpenVPN Server on CoreOS
+              Setting up rclone for backups and mounts
             </span>
           
         </div>
@@ -241,20 +241,11 @@
       
       
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-    
-      
-    
-    
-    <a href="./" title="Setting up OpenVPN Server on CoreOS" class="md-nav__link md-nav__link--active">
+  <li class="md-nav__item">
+    <a href="../vpn/" title="Setting up OpenVPN Server on CoreOS" class="md-nav__link">
       Setting up OpenVPN Server on CoreOS
     </a>
-    
   </li>
 
     
@@ -298,11 +289,56 @@
       
       
 
+  
 
-  <li class="md-nav__item">
-    <a href="../rclone/" title="Setting up rclone for backups and mounts" class="md-nav__link">
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Setting up rclone for backups and mounts
+      </label>
+    
+    <a href="./" title="Setting up rclone for backups and mounts" class="md-nav__link md-nav__link--active">
       Setting up rclone for backups and mounts
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#fuse" title="FUSE" class="md-nav__link">
+    FUSE
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rclone" title="Rclone" class="md-nav__link">
+    Rclone
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
   </li>
 
     
@@ -323,6 +359,29 @@
     
   
   
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#fuse" title="FUSE" class="md-nav__link">
+    FUSE
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rclone" title="Rclone" class="md-nav__link">
+    Rclone
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -333,68 +392,34 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/darth-veitcher/coreos/edit/master/docs/vpn.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/darth-veitcher/coreos/edit/master/docs/rclone.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                <h1 id="setting-up-openvpn-server-on-coreos">Setting up OpenVPN Server on CoreOS</h1>
-<p>Due to issues with getting wireguard working reverting to OpenVPN via <a href="Using https://github.com/kylemanna/docker-openvpn">kylemanna/docker-openvpn</a>.</p>
-<p>I'm going to assume a domain of <code class="codehilite"><span class="n">ghost</span><span class="p">.</span><span class="n">algebraic</span><span class="p">.</span><span class="n">ninja</span></code></p>
-<p>First, create the data volume.
-<div class="codehilite"><pre><span></span><span class="nv">OVPN_DATA</span><span class="o">=</span><span class="s2">&quot;ovpn-data-ghost&quot;</span>
-docker volume create --name <span class="nv">$OVPN_DATA</span>
-</pre></div></p>
-<p>Now show the details for reference with <code class="codehilite"><span class="n">docker</span> <span class="n">volume</span> <span class="n">inspect</span> <span class="err">$</span><span class="n">OVPN_DATA</span></code></p>
-<details><summary>example output</summary><p>[
-    {
-        "CreatedAt": "2019-05-22T20:00:38Z",
-        "Driver": "local",
-        "Labels": {},
-        "Mountpoint": "/var/lib/docker/volumes/ovpn-data-ghost/_data",
-        "Name": "ovpn-data-ghost",
-        "Options": {},
-        "Scope": "local"
-    }
-]</p>
-</details>
-<p>Next we'll initialise the <code class="codehilite"><span class="err">$</span><span class="n">OVPN_DATA</span></code> container that will hold the configuration files and certificates. The container will prompt for a passphrase to protect the private key used by the newly generated certificate authority.</p>
-<div class="codehilite"><pre><span></span><span class="nv">VPN_HOST</span><span class="o">=</span>ghost.algebraic.ninja
-docker run -v <span class="nv">$OVPN_DATA</span>:/etc/openvpn --log-driver<span class="o">=</span>none --rm kylemanna/openvpn ovpn_genconfig -u udp://<span class="nv">$VPN_HOST</span>
+                <h1 id="setting-up-rclone-for-backups-and-mounts">Setting up rclone for backups and mounts</h1>
+<p>Using rclone on CoreOS is a little more involved due to some of the missing dependencies, lack of a package manager and a read-only filesystem which is designed to prevent permanent modifications.</p>
+<p>Luckily, CoreOS allows you to use <code class="codehilite"><span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">bin</span></code> and everything in here is considered part of <code class="codehilite"><span class="err">$</span><span class="n">PATH</span></code>.</p>
+<div class="codehilite"><pre><span></span>sudo mkdir -p /opt/bin
 </pre></div>
 
-<details class="info"><summary>config output</summary><div class="codehilite"><pre><span></span><span class="nv">Status</span>: <span class="nv">Downloaded</span> <span class="nv">newer</span> <span class="nv">image</span> <span class="k">for</span> <span class="nv">kylemanna</span><span class="o">/</span><span class="nv">openvpn</span>:<span class="nv">latest</span>
-<span class="nv">Processing</span> <span class="nv">PUSH</span> <span class="nv">Config</span>: <span class="s1">&#39;</span><span class="s">block-outside-dns</span><span class="s1">&#39;</span>
-<span class="hll"><span class="nv">Processing</span> <span class="nv">Route</span> <span class="nv">Config</span>: <span class="s1">&#39;</span><span class="s">192.168.254.0/24</span><span class="s1">&#39;</span>
-</span><span class="nv">Processing</span> <span class="nv">PUSH</span> <span class="nv">Config</span>: <span class="s1">&#39;</span><span class="s">dhcp-option DNS 8.8.8.8</span><span class="s1">&#39;</span>
-<span class="nv">Processing</span> <span class="nv">PUSH</span> <span class="nv">Config</span>: <span class="s1">&#39;</span><span class="s">dhcp-option DNS 8.8.4.4</span><span class="s1">&#39;</span>
-<span class="nv">Processing</span> <span class="nv">PUSH</span> <span class="nv">Config</span>: <span class="s1">&#39;</span><span class="s">comp-lzo no</span><span class="s1">&#39;</span>
-<span class="nv">Successfully</span> <span class="nv">generated</span> <span class="nv">config</span>
-<span class="nv">Cleaning</span> <span class="nv">up</span> <span class="nv">before</span> <span class="k">Exit</span> ...
+<h2 id="fuse">FUSE</h2>
+<p>In order to use <code class="codehilite"><span class="n">rclone</span> <span class="n">mount</span> <span class="p">..</span></code> we need to have fuse available on CoreOS. Obviously it would be too straightforward for it to already be here so we'll need to use a docker container to compile the <code class="codehilite"><span class="n">fusermount</span></code> binary and then copy it to <code class="codehilite"><span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">bin</span></code>.</p>
+<div class="codehilite"><pre><span></span><span class="c1"># Run our container, copy the binary required and then remove it</span>
+sudo docker run -d --name fuse saracen9/fuse-builder sleep <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    sudo docker cp fuse:/usr/local/bin/fusermount3 /opt/bin/fusermount <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    docker rm -f fuse
 </pre></div>
 
-</details>
-<p>Initialise the PKI
-<div class="codehilite"><pre><span></span>docker run -v <span class="nv">$OVPN_DATA</span>:/etc/openvpn --log-driver<span class="o">=</span>none --rm -it kylemanna/openvpn ovpn_initpki
-</pre></div></p>
-<p>Start OpenVPN server process</p>
-<div class="codehilite"><pre><span></span>docker run -v <span class="nv">$OVPN_DATA</span>:/etc/openvpn -d -p <span class="m">1194</span>:1194/udp --cap-add<span class="o">=</span>NET_ADMIN kylemanna/openvpn
+<h2 id="rclone">Rclone</h2>
+<p>We can download and extract rclone directly to here to make life easy.</p>
+<div class="codehilite"><pre><span></span>sudo wget <span class="s2">&quot;https://downloads.rclone.org/rclone-current-linux-amd64.zip&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    sudo unzip rclone* <span class="o">&amp;&amp;</span> sudo rm -f rclone*.zip <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    sudo mv rclone* rclone <span class="o">&amp;&amp;</span> sudo mv rclone/rclone /opt/bin <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    sudo chmod +x /opt/bin/rclone
 </pre></div>
 
-<p>Generate a client certificate without a passphrase</p>
-<div class="codehilite"><pre><span></span><span class="nv">CLIENTNAME</span><span class="o">=</span>jamesveitch
-docker run -v <span class="nv">$OVPN_DATA</span>:/etc/openvpn --log-driver<span class="o">=</span>none --rm -it kylemanna/openvpn easyrsa build-client-full <span class="nv">$CLIENTNAME</span> nopass
+<p>Now create your <code class="codehilite"><span class="o">~/</span><span class="p">.</span><span class="n">rclone</span><span class="p">.</span><span class="n">conf</span></code> according to instructions elsewhere and you can run a command similar to the below:</p>
+<div class="codehilite"><pre><span></span>rclone mount google: /mnt/gdrive --daemon --allow-other --drive-chunk-size 32M --timeout 1h --umask <span class="m">002</span>
 </pre></div>
-
-<p>Retrieve the client configuration with embedded certificates</p>
-<div class="codehilite"><pre><span></span>docker run -v <span class="nv">$OVPN_DATA</span>:/etc/openvpn --log-driver<span class="o">=</span>none --rm kylemanna/openvpn ovpn_getclient <span class="nv">$CLIENTNAME</span> &gt; <span class="nv">$CLIENTNAME</span>.ovpn
-</pre></div>
-
-<p>Now add it as a <code class="codehilite"><span class="n">systemd</span></code> service on reboot. Download the docker-openvpn@.service file to /etc/systemd/system:</p>
-<div class="codehilite"><pre><span></span>curl -L https://raw.githubusercontent.com/kylemanna/docker-openvpn/master/init/docker-openvpn%40.service <span class="p">|</span> sudo tee /etc/systemd/system/docker-openvpn@.service
-</pre></div>
-
-<p>Enable and start the service with:
-<div class="codehilite"><pre><span></span>sudo systemctl <span class="nb">enable</span> --now docker-openvpn@ghost.service
-</pre></div></p>
                 
                   
                 
@@ -415,7 +440,7 @@ docker run -v <span class="nv">$OVPN_DATA</span>:/etc/openvpn --log-driver<span 
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href=".." title="CoreOS Setup" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../bare_metal/" title="Installing CoreOS to a Bare Metal host" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -424,25 +449,11 @@ docker run -v <span class="nv">$OVPN_DATA</span>:/etc/openvpn --log-driver<span 
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                CoreOS Setup
+                Installing CoreOS to a Bare Metal host
               </span>
             </div>
           </a>
         
-        
-          <a href="../firewall/" title="Enable firewall" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
-            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
-              <span class="md-flex__ellipsis">
-                <span class="md-footer-nav__direction">
-                  Next
-                </span>
-                Enable firewall
-              </span>
-            </div>
-            <div class="md-flex__cell md-flex__cell--shrink">
-              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
-            </div>
-          </a>
         
       </nav>
     </div>
