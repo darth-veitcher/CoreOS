@@ -27,6 +27,14 @@ storage:
                 <allow own="org.freedesktop.Avahi"/>
             </policy>
           </busconfig>
+    # create smb credentials
+    - filesystem: "root"
+      path: "/.smb-credentials"
+      mode: 0600
+      contents: 
+        inline: | 
+          username=myCIFSusername
+          password=muchS3curity
   filesystems:
     # define the local data filesystem
     - name: data
@@ -73,6 +81,21 @@ systemd:
         What=192.168.0.53:/export/TV
         Where=/mnt/lake/tv
         Type=nfs
+
+        [Install]
+        WantedBy=multi-user.target
+    - name: mnt-lake-docs.mount
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Mount Documents
+        After=network.target
+
+        [Mount]
+        What=//192.168.0.53/docs
+        Where=/mnt/lake/docs
+        Type=cifs
+        Options=rw,hard,async,rsize=51200,wsize=8192,credentials=/.smb-credentials
 
         [Install]
         WantedBy=multi-user.target

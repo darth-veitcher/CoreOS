@@ -1,0 +1,610 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+        <meta name="description" content="Setting up CoreOS for lab work">
+      
+      
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.2.0">
+    
+    
+      
+        <title>Installing CoreOS to a Bare Metal host - CoreOS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/application.750b69bd.css">
+      
+      
+    
+    
+      <script src="../assets/javascripts/modernizr.74668098.js"></script>
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../assets/fonts/material-icons.css">
+    
+    
+    
+      
+    
+    
+  </head>
+  
+    <body dir="ltr">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448"
+    viewBox="0 0 416 448" id="__github">
+  <path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19-18.125
+        8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19 18.125-8.5
+        18.125 8.5 10.75 19 3.125 20.5zM320 304q0 10-3.125 20.5t-10.75
+        19-18.125 8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19
+        18.125-8.5 18.125 8.5 10.75 19 3.125 20.5zM360
+        304q0-30-17.25-51t-46.75-21q-10.25 0-48.75 5.25-17.75 2.75-39.25
+        2.75t-39.25-2.75q-38-5.25-48.75-5.25-29.5 0-46.75 21t-17.25 51q0 22 8
+        38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0
+        37.25-1.75t35-7.375 30.5-15 20.25-25.75 8-38.375zM416 260q0 51.75-15.25
+        82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5-41.75
+        1.125q-19.5 0-35.5-0.75t-36.875-3.125-38.125-7.5-34.25-12.875-30.25-20.25-21.5-28.75q-15.5-30.75-15.5-82.75
+        0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25
+        30.875q36.75-8.75 77.25-8.75 37 0 70 8 26.25-20.5
+        46.75-30.25t47.25-9.75q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34
+        99.5z" />
+</svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#installing-coreos-to-a-bare-metal-host" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href=".." title="CoreOS" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon">cloud</i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            <span class="md-header-nav__topic">
+              CoreOS
+            </span>
+            <span class="md-header-nav__topic">
+              Installing CoreOS to a Bare Metal host
+            </span>
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+<a href="https://github.com/darth-veitcher/coreos/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    darth-veitcher/coreos
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href=".." title="CoreOS" class="md-nav__button md-logo">
+      
+        <i class="md-icon">cloud</i>
+      
+    </a>
+    CoreOS
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+<a href="https://github.com/darth-veitcher/coreos/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    darth-veitcher/coreos
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href=".." title="CoreOS Setup" class="md-nav__link">
+      CoreOS Setup
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../vpn/" title="Setting up OpenVPN Server on CoreOS" class="md-nav__link">
+      Setting up OpenVPN Server on CoreOS
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../firewall/" title="Enable firewall" class="md-nav__link">
+      Enable firewall
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../proxy/" title="Using Traefik as a reverse proxy" class="md-nav__link">
+      Using Traefik as a reverse proxy
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Installing CoreOS to a Bare Metal host
+      </label>
+    
+    <a href="./" title="Installing CoreOS to a Bare Metal host" class="md-nav__link md-nav__link--active">
+      Installing CoreOS to a Bare Metal host
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" title="Configuration" class="md-nav__link">
+    Configuration
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#config-vs-ignitiion" title="Config vs Ignitiion" class="md-nav__link">
+    Config vs Ignitiion
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuratiuon" title="Configuratiuon" class="md-nav__link">
+    Configuratiuon
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#transpile-the-config" title="Transpile the config" class="md-nav__link">
+    Transpile the config
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" title="Installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" title="Configuration" class="md-nav__link">
+    Configuration
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#config-vs-ignitiion" title="Config vs Ignitiion" class="md-nav__link">
+    Config vs Ignitiion
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuratiuon" title="Configuratiuon" class="md-nav__link">
+    Configuratiuon
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#transpile-the-config" title="Transpile the config" class="md-nav__link">
+    Transpile the config
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" title="Installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/darth-veitcher/coreos/edit/master/docs/bare_metal.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <h1 id="installing-coreos-to-a-bare-metal-host">Installing CoreOS to a Bare Metal host</h1>
+<p>If, like, me you want to run this on-prem then this chapter will quickly run through how to get setup in an environment where you've got a physical host and don't want to rely on a cloud provider. We're going to download an iso, install to disk and then run through some configuration specifics for my environment. Bits might be useful / relevant to you depending on your own setup so YMMV.</p>
+<p><strong>Obtain the latest image</strong>
+Navigate to the <a href="https://coreos.com/os/docs/latest/booting-with-iso.html">CoreOS, Container Linux</a> website and download the latest iso file.</p>
+<div class="codehilite"><pre><span></span><span class="nb">cd</span> ~/Downloads
+wget https://stable.release.core-os.net/amd64-usr/current/coreos_production_iso_image.iso
+</pre></div>
+
+<p>With the image downloaded now write it to disk with a <code class="codehilite"><span class="nv">sudo</span> <span class="nv">dd</span> <span class="k">if</span><span class="o">=~/</span><span class="nv">Downloads</span><span class="o">/</span><span class="nv">coreos_production_iso_image</span>.<span class="nv">iso</span> <span class="nv">of</span><span class="o">=/</span><span class="nv">dev</span><span class="o">/</span><span class="nv">path</span><span class="o">/</span><span class="nv">tousb</span> <span class="nv">bs</span><span class="o">=</span><span class="mi">1</span><span class="nv">m</span></code> same as any other iso.</p>
+<p><strong>Boot the host using usb</strong></p>
+<p>Couple of things to note:</p>
+<ol>
+<li>CoreOS relies on BIOS as opposed to UEFI</li>
+<li>Make sure you set the USB emulation to Hard Disk if given the option in your BIOS</li>
+</ol>
+<p>Once booted up you can run a <code class="codehilite"><span class="n">sudo</span> <span class="n">passwd</span> <span class="n">core</span></code> to set a password on the main user and then head back to a screen somewhere else to continue the setup over ssh.</p>
+<h2 id="configuration">Configuration</h2>
+<p>There's a few examples on the <a href="https://coreos.com/os/docs/latest/clc-examples.html">official website</a> but the best documentation currently resides in the <a href="https://github.com/coreos/container-linux-config-transpiler/blob/master/doc/configuration.md">GitHub repo</a>.</p>
+<p>My particular setup at home has the following characteristics:</p>
+<p><strong>Network bonding</strong></p>
+<ul>
+<li>Physical rack-mounted hosts each with +4 NICs (Dell R610 and Dell R710)</li>
+<li>Managed switch with configured LACP for bonded network interfaces</li>
+</ul>
+<p>As a result I'll also be configuring the CoreOS images to run bonded network <a href="https://en.wikipedia.org/wiki/Link_aggregation">802.3ad</a> NICs to maximise network throughput.</p>
+<p><strong>Fileshares</strong></p>
+<p>I have a seperate physcial fileserver (called <code class="codehilite"><span class="n">Lake</span></code>) and so will be mounting NFS/CIFS shares into the CoreOS system so that they can be accessed by docker images.</p>
+<p><strong>Local Filesystem</strong></p>
+<p>On each of the servers I've got a slightly different storage setup. I'll mount these extra disks (over and above the standard root) into the host under the <code class="codehilite"><span class="o">/</span><span class="k">data</span></code> directory.</p>
+<p><strong>Avahi Network Discovery</strong></p>
+<p>For the sake of ease I'm going to run avahi to broadcast/multicast my server hostnames etc. on the local network. There's a custom docker image, associated systemd service and a config file being created as a result.</p>
+<h3 id="config-vs-ignitiion">Config vs Ignitiion</h3>
+<p>Container Linux has the concept of creating a human-readable <code class="codehilite"><span class="n">Container</span> <span class="n">Linux</span> <span class="n">Config</span></code> and then compiling this into a condensed (and validated) machine-readable format called <code class="codehilite"><span class="n">Ignition</span></code>. As a result we'll create a config file and then <code class="codehilite"><span class="n">transpile</span></code> it into an ignition one (which is actually what gets loaded and read by CoreOS). The tool for performing this can be found on GitHub <a href="https://github.com/coreos/container-linux-config-transpiler">here</a>.</p>
+<h4 id="configuratiuon">Configuratiuon</h4>
+<p>My configs can be found <a href="https://github.com/darth-veitcher/CoreOS/tree/master/configs">here</a> so I won't bother replicating wholesale here too. Once you've created your own we're ready to go.</p>
+<p>Either ssh into the machine and run <code class="codehilite"><span class="n">vi</span> <span class="n">config</span></code> to copy/paste the above config file in or <code class="codehilite"><span class="n">scp</span></code> it across and then ssh in. If you haven't installed the <code class="codehilite"><span class="n">ct</span></code> application locally to transpile the config we need to get it on the remote host. Go to the <a href="https://github.com/coreos/container-linux-config-transpiler/releases">releases</a> to find the latest one.</p>
+<h5 id="transpile-the-config">Transpile the config</h5>
+<div class="codehilite"><pre><span></span>wget https://github.com/coreos/container-linux-config-transpiler/releases/download/v0.9.0/ct-v0.9.0-x86_64-unknown-linux-gnu <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    sudo mkdir -p /opt/bin <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    sudo mv ct* /opt/bin/ct <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    sudo chmod +x /opt/bin/ct
+</pre></div>
+
+<p>Typing <code class="codehilite"><span class="n">ct</span> <span class="c1">--help</span></code> should now return the following output in the terminal.</p>
+<details class="info"><summary>ct</summary><div class="codehilite"><pre><span></span><span class="nv">Usage</span> <span class="nv">of</span> <span class="nv">ct</span>:
+<span class="o">-</span><span class="nv">files</span><span class="o">-</span><span class="nv">dir</span> <span class="nv">string</span>
+        <span class="nv">Directory</span> <span class="nv">to</span> <span class="nv">read</span> <span class="nv">local</span> <span class="nv">files</span> <span class="nv">from</span>.
+<span class="o">-</span><span class="nv">help</span>
+        <span class="nv">Print</span> <span class="nv">help</span> <span class="nv">and</span> <span class="k">exit</span>.
+<span class="o">-</span><span class="nv">in</span><span class="o">-</span><span class="nv">file</span> <span class="nv">string</span>
+        <span class="nv">Path</span> <span class="nv">to</span> <span class="nv">the</span> <span class="nv">container</span> <span class="nv">linux</span> <span class="nv">config</span>. <span class="nv">Standard</span> <span class="nv">input</span> <span class="nv">unless</span> <span class="nv">specified</span> <span class="nv">otherwise</span>.
+<span class="o">-</span><span class="nv">out</span><span class="o">-</span><span class="nv">file</span> <span class="nv">string</span>
+        <span class="nv">Path</span> <span class="nv">to</span> <span class="nv">the</span> <span class="nv">resulting</span> <span class="nv">Ignition</span> <span class="nv">config</span>. <span class="nv">Standard</span> <span class="nv">output</span> <span class="nv">unless</span> <span class="nv">specified</span> <span class="nv">otherwise</span>.
+<span class="o">-</span><span class="nv">platform</span> <span class="nv">string</span>
+        <span class="nv">Platform</span> <span class="nv">to</span> <span class="nv">target</span>. <span class="nv">Accepted</span> <span class="nv">values</span>: [<span class="nv">azure</span> <span class="nv">digitalocean</span> <span class="nv">ec2</span> <span class="nv">gce</span> <span class="nv">packet</span> <span class="nv">openstack</span><span class="o">-</span><span class="nv">metadata</span> <span class="nv">vagrant</span><span class="o">-</span><span class="nv">virtualbox</span> <span class="nv">cloudstack</span><span class="o">-</span><span class="nv">configdrive</span> <span class="nv">custom</span>].
+<span class="o">-</span><span class="nv">pretty</span>
+        <span class="nv">Indent</span> <span class="nv">the</span> <span class="nv">resulting</span> <span class="nv">Ignition</span> <span class="nv">config</span>.
+<span class="o">-</span><span class="nv">strict</span>
+        <span class="nv">Fail</span> <span class="k">if</span> <span class="nv">any</span> <span class="nv">warnings</span> <span class="nv">are</span> <span class="nv">encountered</span>.
+<span class="o">-</span><span class="nv">version</span>
+        <span class="nv">Print</span> <span class="nv">the</span> <span class="nv">version</span> <span class="nv">and</span> <span class="k">exit</span>.
+</pre></div>
+
+</details>
+<p>We'll now transpile the config.</p>
+<div class="codehilite"><pre><span></span>ct -platform custom -in-file /path/to/config.yml -out-file /path/to/ignition.json
+</pre></div>
+
+<p>If there aren't any errors you can review the minified output file which will be a condensed JSON object with as much whitespace removed as possible.</p>
+<h2 id="installation">Installation</h2>
+<p>With the ignition file now created it's time to install (change your device as necessary)...</p>
+<div class="codehilite"><pre><span></span>sudo coreos-install -d /dev/sda -i ignition.json
+
+<span class="c1"># Once completed reboot</span>
+sudo shutdown -r now
+</pre></div>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../proxy/" title="Using Traefik as a reverse proxy" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Using Traefik as a reverse proxy
+              </span>
+            </div>
+          </a>
+        
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        powered by
+        <a href="https://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+  <div class="md-footer-social">
+    <link rel="stylesheet" href="../assets/fonts/font-awesome.css">
+    
+      <a href="https://github.com/darth-veitcher" class="md-footer-social__link fa fa-github"></a>
+    
+  </div>
+
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/application.39abc4af.js"></script>
+      
+      <script>app.initialize({version:"1.0.4",url:{base:".."}})</script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+      
+    
+  </body>
+</html>

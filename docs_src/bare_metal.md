@@ -12,6 +12,7 @@ wget https://stable.release.core-os.net/amd64-usr/current/coreos_production_iso_
 With the image downloaded now write it to disk with a `sudo dd if=~/Downloads/coreos_production_iso_image.iso of=/dev/path/tousb bs=1m` same as any other iso.
 
 **Boot the host using usb**
+
 Couple of things to note:
 
 1. CoreOS relies on BIOS as opposed to UEFI
@@ -26,10 +27,10 @@ My particular setup at home has the following characteristics:
 
 **Network bonding**
 
-* Physical rack-mounted hosts each with +4 NICs (Dell R610 and Dell 710)
+* Physical rack-mounted hosts each with +4 NICs (Dell R610 and Dell R710)
 * Managed switch with configured LACP for bonded network interfaces
 
-As a result I'll also be configuring the CoreOS images to run bonded network 802.3ad NICs to maximise network throughput.
+As a result I'll also be configuring the CoreOS images to run bonded network [802.3ad](https://en.wikipedia.org/wiki/Link_aggregation) NICs to maximise network throughput.
 
 **Fileshares**
 
@@ -47,10 +48,9 @@ For the sake of ease I'm going to run avahi to broadcast/multicast my server hos
 Container Linux has the concept of creating a human-readable `Container Linux Config` and then compiling this into a condensed (and validated) machine-readable format called `Ignition`. As a result we'll create a config file and then `transpile` it into an ignition one (which is actually what gets loaded and read by CoreOS). The tool for performing this can be found on GitHub [here](https://github.com/coreos/container-linux-config-transpiler).
 
 #### Configuratiuon
-My configs can be found [here]
+My configs can be found [here](https://github.com/darth-veitcher/CoreOS/tree/master/configs) so I won't bother replicating wholesale here too. Once you've created your own we're ready to go.
 
-
-Either ssh into the machine and run `vi config` to copy/paste the above config file in or `scp` it across and then ssh in. Now we need to get the config transpiler. Go to the [releases](https://github.com/coreos/container-linux-config-transpiler/releases) to find the latest one.
+Either ssh into the machine and run `vi config` to copy/paste the above config file in or `scp` it across and then ssh in. If you haven't installed the `ct` application locally to transpile the config we need to get it on the remote host. Go to the [releases](https://github.com/coreos/container-linux-config-transpiler/releases) to find the latest one.
 
 ##### Transpile the config
 ```bash
@@ -86,17 +86,13 @@ Typing `ct --help` should now return the following output in the terminal.
 We'll now transpile the config.
 
 ```bash
-ct -platform custom -in-file ~/config -out-file ~/ignition.json
+ct -platform custom -in-file /path/to/config.yml -out-file /path/to/ignition.json
 ```
 
-If there aren't any errors you can review the minified output file.
-??? "cat ~/ignition.json"
-    ```
-    {"ignition":{"config":{},"security":{"tls":{}},"timeouts":{},"version":"2.2.0"},"networkd":{"units":[{"contents":"[Match]\nName=bond1\n\n[Network]\nDHCP=ipv4\n","name":"30-bond1.network"},{"contents":"[NetDev]\nName=bond1\nKind=bond\n\n[Bond]\nMode=802.3ad\nMIIMonitorSec=1s\nLACPTransmitRate=fast\nUpDelaySec=2s\nDownDelaySec=8s\n","name":"30-bond1.netdev"},{"contents":"[Match]\nMACAddress=D4:BE:D9:A9:B5:54 D4:BE:D9:A9:B5:56 D4:BE:D9:A9:B5:58 D4:BE:D9:A9:B5:5A\n\n[Network]\nBond=bond1\n","name":"30-bond1-slaves.network"}]},"passwd":{"users":[{"name":"core","sshAuthorizedKeys":["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDZsCEU/2uFV4YpBjoOsSIY1yRta3mGdd81TyvZFGzVsXEn7BbkJXPI6I3r8vXQaRgQvr//yj/Q3whuGlcBuH8PuCAUlHg2oJIMJ+NsIW/E300nzu0j8lltDvLg4Sl1Ncag4Hy5JtjeWyoouHCUajxN8jRKqXW1pS3hZO2+UCN2t6ZNl7n01cZZviVWcoPe2tUpy2O52iWW6Wt7cgWFSBVPCmnD3p5Vwnz2d5SrSgzQ+9Qq/jrU0ZGF32wLt/c3OzHMBRLYNJviMaEZfonIjTmpqOxUQxXzO25K3/A0QHeEtBInKpNr7TUJ/U0rtpNrw2Th6wsc4pjLLM9R9U6EbH9D james@jamesveitch.com"]}]},"storage":{"files":[{"filesystem":"root","path":"/etc/hostname","contents":{"source":"data:,asimov","verification":{}},"mode":420},{"filesystem":"root","path":"/etc/coreos/update.conf","contents":{"source":"data:,GROUP%3Dstable%0AREBOOT_STRATEGY%3D%22reboot%22%0ALOCKSMITHD_REBOOT_WINDOW_START%3D%22Thu%2004%3A00%22%0ALOCKSMITHD_REBOOT_WINDOW_LENGTH%3D%222h%22","verification":{}},"mode":420}],"filesystems":[{"mount":{"device":"/dev/disk/by-uuid/0192c047-0792-4f7a-9f27-f093dd79bd2e","format":"btrfs","label":"DATA","wipeFilesystem":true},"name":"data"}]},"systemd":{"units":[{"contents":"[Unit]\nDescription=Automount Lake Network Share (TV)\n\n[Automount]\nWhere=/mnt/scratch\n\n[Install]\nWantedBy=multi-user.target\n","enabled":true,"name":"mnt-lake-tv.automount"},{"contents":"[Unit]\nDescription=Lake Network Share (TV)\n\n[Mount]\nWhat=lake.local:/export/TV\nWhere=/mnt/lake/tv\nType=nfs\n\n[Install]\nWantedBy=multi-user.target\n","enabled":true,"name":"mnt-lake-tv.mount"},{"contents":"[Unit]\nDescription=Automount Lake Network Share (Movies)\n\n[Automount]\nWhere=/mnt/scratch\n\n[Install]\nWantedBy=multi-user.target\n","enabled":true,"name":"mnt-lake-movies.automount"},{"contents":"[Unit]\nDescription=Lake Network Share (Movies)\n\n[Mount]\nWhat=lake.local:/export/Movies\nWhere=/mnt/lake/movies\nType=nfs\n\n[Install]\nWantedBy=multi-user.target\n","enabled":true,"name":"mnt-lake-movies.mount"}]}}
-    ```
+If there aren't any errors you can review the minified output file which will be a condensed JSON object with as much whitespace removed as possible.
 
 ## Installation
-With the ignition file now created it's time to install...
+With the ignition file now created it's time to install (change your device as necessary)...
 
 ```bash
 sudo coreos-install -d /dev/sda -i ignition.json
