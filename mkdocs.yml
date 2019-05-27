@@ -30,6 +30,7 @@ nav:
     - firewall.md
     - proxy.md
     - bare_metal.md
+    - rclone.md
 
 # Extensions
 # https://squidfunk.github.io/mkdocs-material/extensions/pymdown/
