@@ -77,5 +77,5 @@ curl -L https://raw.githubusercontent.com/kylemanna/docker-openvpn/master/init/d
 
 Enable and start the service with:
 ```bash
-systemctl enable --now docker-openvpn@ghost.service
+sudo systemctl enable --now docker-openvpn@ghost.service
 ```
